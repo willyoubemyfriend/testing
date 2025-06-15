@@ -11,6 +11,7 @@ export function createPlayer(x = 1, y = 1) {
     };
 }
 
+
 export function createPlayerStats() {
     return {
         name: "Googar",
