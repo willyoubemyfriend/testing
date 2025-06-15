@@ -1,27 +1,27 @@
-const playerImg = new Image();
+export const playerImg = new Image();
 playerImg.src = 'assets/player.png';
 
-const tileset = new Image();
+export const tileset = new Image();
 tileset.src = 'assets/tileset.png';
 
-const inventoryImg = new Image();
+export const inventoryImg = new Image();
 inventoryImg.src = 'assets/inventory.png';
 
-const playerImage = new Image();
+export const playerImage = new Image();
 playerImage.src = 'assets/player_image.png';
 
-const enemyIcons = new Image();
+export const enemyIcons = new Image();
 enemyIcons.src = 'assets/enemy_icons.png';
 
-const enemyStatusesImg = new Image();
+export const enemyStatusesImg = new Image();
 enemyStatusesImg.src = 'assets/enemy_statuses.png';
 
-const creatureGrid = new Image();
+export const creatureGrid = new Image();
 creatureGrid.src = 'assets/creature_grid.png';
 
-const assets = [playerImg, tileset, inventoryImg, playerImage, enemyIcons, enemyStatusesImg, creatureGrid];
+export const assets = [playerImg, tileset, inventoryImg, playerImage, enemyIcons, enemyStatusesImg, creatureGrid];
 
-let assetsLoaded = 0;
+let loaded = 0;
 
 export function loadAssets(callback) {
   assets.forEach(img => {
