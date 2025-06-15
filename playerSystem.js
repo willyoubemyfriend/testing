@@ -1,11 +1,12 @@
 import { TILE_SIZE } from './roomSystem.js';
-export function createPlayer(x = 1, y = 1, speed = 1) {
+
+export function createPlayer(x = 1, y = 1) {
     return {
         x: x,
         y: y,
         px: x * TILE_SIZE,
         py: y * TILE_SIZE,
-        speed: speed,
+        speed: 1,
         moving: false
     };
 }
@@ -43,15 +44,6 @@ export function updatePlayerPosition(player) {
     return false; // Still moving
 }
 
-export function attemptPlayerMovement(player, dx, dy, canMoveCallback) {
-    const nx = player.x + dx;
-    const ny = player.y + dy;
-
-    if ((dx !== 0 || dy !== 0) && canMoveCallback(nx, ny)) {
-        player.x = nx;
-        player.y = ny;
-        player.moving = true;
-        return true;
-    }
-    return false;
+export function drawPlayer(ctx, player, playerImg) {
+    ctx.drawImage(playerImg, player.px, player.py, TILE_SIZE, TILE_SIZE);
 }
