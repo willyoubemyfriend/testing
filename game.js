@@ -2,7 +2,7 @@ import {
     TILE_SIZE, MAP_WIDTH, MAP_HEIGHT, 
     rooms, roomExits, 
     drawRoom, canMove 
-} from 'roomSystem.js';
+} from './roomSystem.js';
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
