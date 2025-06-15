@@ -1,16 +1,15 @@
 import { TILE_SIZE } from './roomSystem.js';
 
-export function createPlayer(x = 1, y = 1) {
+export function createPlayer() {
     return {
-        x: x,
-        y: y,
-        px: x * TILE_SIZE,
-        py: y * TILE_SIZE,
+        x: 1,
+        y: 1,
+        px: 1 * TILE_SIZE,
+        py: 1 * TILE_SIZE,
         speed: 1,
         moving: false
     };
 }
-
 
 export function createPlayerStats() {
     return {
@@ -39,10 +38,10 @@ export function updatePlayerPosition(player) {
             player.px = tx;
             player.py = ty;
             player.moving = false;
-            return true; // Movement completed
+            return true; // Indicates movement completed
         }
     }
-    return false; // Still moving
+    return false;
 }
 
 export function drawPlayer(ctx, player, playerImg) {
