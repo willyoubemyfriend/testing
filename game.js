@@ -1,11 +1,12 @@
+import { 
+    TILE_SIZE, MAP_WIDTH, MAP_HEIGHT, 
+    rooms, roomExits, 
+    drawRoom, canMove 
+} from './roomSystem.js';
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
-
-
-const TILE_SIZE = 16;
-const MAP_WIDTH = 10;
-const MAP_HEIGHT = 9;
 
 const playerImg = new Image();
 playerImg.src = 'assets/player.png';
@@ -45,7 +46,6 @@ const playerStats = {
 const seenEnemies = Array(28).fill(true);  // all enemies start as not seen
 const enemyStatuses = Array(28).fill("newlife");
 
-
 // Wait until all assets are loaded
 assets.forEach(img => {
     img.onload = () => {
@@ -55,83 +55,6 @@ assets.forEach(img => {
         }
     };
 });
-
-const rooms = [
-    // Room 0
-    [
-        [0,0,0,0,0,0,1,0,0,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,0,0,0,0,0,0,1,0],
-        [0,1,0,1,1,1,1,0,1,1],
-        [0,1,0,1,0,0,1,0,1,0],
-        [0,1,0,1,0,0,1,0,1,0],
-        [0,1,0,1,1,1,1,0,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,0,0,0,0,0,0,0,0,0]
-    ],
-    // Room 1
-    [
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,1,1,1,0,0,1,1,1,0],
-        [0,1,0,1,0,0,1,0,1,0],
-        [1,1,0,1,1,1,1,0,1,0],
-        [0,1,0,0,0,0,0,0,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,0,0,0,0,0,0,0,0,0]
-    ],
-    // Room 2
-    [
-        [0,0,0,0,0,0,0,0,0,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,1,1,1,1,1,1,1,1,0],
-        [0,0,0,0,0,0,1,0,0,0] 
-    ]
-];
-
-const roomExits = [
-    [ // Exits for Room 0
-        {
-            x: 10, y: 3,
-            direction: "right",
-            toRoom: 1,
-            toX: 0, toY: 3,
-            roomgap: 160
-        },
-        {
-            x: 6, y: -1,
-            direction: "up",
-            toRoom: 2,
-            toX: 6, toY: 8,
-            roomgap: 0
-        }
-    ],
-    [ // Exits for Room 1
-        {
-            x: -1, y: 3,
-            direction: "left",
-            toRoom: 0,
-            toX: 9, toY: 3,
-            roomgap: 0
-        }
-    ],
-    [ // Exits for Room 2
-        {
-            x: 6, y: 9,
-            direction: "down",
-            toRoom: 0,
-            toX: 6, toY: 0,
-            roomgap: 0
-        }
-    ]
-];
-
 
 let currentRoomIndex = 0;
 
@@ -218,10 +141,10 @@ function changeInventoryPage(direction) {
     }
 }
 
-function canMove(x, y) {
-    // If tile is inside bounds and not 0, allow move
-    if (rooms[currentRoomIndex][y] && rooms[currentRoomIndex][y][x] !== undefined) {
-        return rooms[currentRoomIndex][y][x] !== 0;
+function canMoveInCurrentRoom(x, y) {
+    // Check room tiles first
+    if (canMove(rooms[currentRoomIndex], x, y)) {
+        return true;
     }
 
     // Check if this out-of-bounds position matches any defined exit
@@ -241,7 +164,7 @@ function update() {
         let nx = player.x + dx;
         let ny = player.y + dy;
 
-        if ((dx !== 0 || dy !== 0) && canMove(nx, ny)) {
+        if ((dx !== 0 || dy !== 0) && canMoveInCurrentRoom(nx, ny)) {
             player.x = nx;
             player.y = ny;
             player.moving = true;
@@ -285,7 +208,6 @@ function update() {
                 player.moving = false;
                 gameState.canMove = false;
             }
-
         }
     }
 
@@ -308,23 +230,22 @@ function update() {
     if (roomTransition.active) {
         roomTransition.progress += roomTransition.speed;
 
-            const isHorizontal = roomTransition.direction === "left" || roomTransition.direction === "right";
-            const transitionLimit = (isHorizontal ? canvas.width : canvas.height) + roomTransition.roomGap;
+        const isHorizontal = roomTransition.direction === "left" || roomTransition.direction === "right";
+        const transitionLimit = (isHorizontal ? canvas.width : canvas.height) + roomTransition.roomGap;
 
-            if (roomTransition.progress >= transitionLimit) {
-                // Complete the transition
-                currentRoomIndex = roomTransition.toRoom;
-                player.x = roomTransition.playerStartX;
-                player.y = roomTransition.playerStartY;
-                player.px = player.x * TILE_SIZE;
-                player.py = player.y * TILE_SIZE;
-                player.moving = false;
+        if (roomTransition.progress >= transitionLimit) {
+            // Complete the transition
+            currentRoomIndex = roomTransition.toRoom;
+            player.x = roomTransition.playerStartX;
+            player.y = roomTransition.playerStartY;
+            player.px = player.x * TILE_SIZE;
+            player.py = player.y * TILE_SIZE;
+            player.moving = false;
 
-                roomTransition.active = false;
-                gameState.canMove = true;
-              }
+            roomTransition.active = false;
+            gameState.canMove = true;
+        }
     }
-
 
     // Animation timers
     frameCounter++;
@@ -339,7 +260,6 @@ function update() {
         enemyAnimFrame = (enemyAnimFrame + 1) % 2;
     }
 }
-
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -364,17 +284,16 @@ function draw() {
         const toY = dy * (offset - canvas.height - gap);
 
         // Draw the rooms
-        drawRoom(fromRoom, fromX, fromY);
-        drawRoom(toRoom, toX, toY);
+        drawRoom(ctx, fromRoom, fromX, fromY, tileset);
+        drawRoom(ctx, toRoom, toX, toY, tileset);
 
         // Draw player in their final position in the new room
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
         ctx.drawImage(playerImg, playerX, playerY, TILE_SIZE, TILE_SIZE);
-
     } else {
         // Normal room rendering
-        drawRoom(rooms[currentRoomIndex], 0, 0);
+        drawRoom(ctx, rooms[currentRoomIndex], 0, 0, tileset);
         ctx.drawImage(playerImg, player.px, player.py, TILE_SIZE, TILE_SIZE);
     }
 
@@ -393,46 +312,27 @@ function draw() {
             drawInventoryPage3(); // Creature grid
             ctx.restore();
         }
-
-        // Other pages can be added similarly
-    }
-}
-
-function drawRoom(room, offsetX, offsetY) {
-    for (let y = 0; y < MAP_HEIGHT; y++) {
-        for (let x = 0; x < MAP_WIDTH; x++) {
-            let tile = room[y][x];
-            ctx.drawImage(
-                tileset,
-                tile * TILE_SIZE, 0,
-                TILE_SIZE, TILE_SIZE,
-                x * TILE_SIZE + offsetX,
-                y * TILE_SIZE + offsetY,
-                TILE_SIZE, TILE_SIZE
-            );
-        }
     }
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-  const words = text.split(' ');
-  let line = '';
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
-    const metrics = ctx.measureText(testLine);
-    const testWidth = metrics.width;
+    const words = text.split(' ');
+    let line = '';
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
 
-    if (testWidth > maxWidth && n > 0) {
-      ctx.fillText(line, x, y);
-      line = words[n] + ' ';
-      y += lineHeight;
-    } else {
-      line = testLine;
+        if (testWidth > maxWidth && n > 0) {
+            ctx.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+        } else {
+            line = testLine;
+        }
     }
-  }
-  ctx.fillText(line, x, y);
+    ctx.fillText(line, x, y);
 }
-
 
 function drawInventoryPage1() {
     // Draw the player portrait
@@ -496,7 +396,6 @@ function drawInventoryPage3() {
         );
     }
 }
-
 
 let enemyFrame = 0;
 let frameCounter = 0;
