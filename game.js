@@ -1,10 +1,8 @@
-// game.js
 import { 
     TILE_SIZE, MAP_WIDTH, MAP_HEIGHT, 
     rooms, roomExits, 
     drawRoom, canMove 
 } from './roomSystem.js';
-
 
 import {
     createInventory,
@@ -51,12 +49,12 @@ creatureGrid.src = 'assets/creature_grid.png';
 const assets = [playerImg, tileset, inventoryImg, playerImage, enemyIcons, enemyStatusesImg, creatureGrid];
 let assetsLoaded = 0;
 
-// Initialize game objects
+// Initialize game state
 const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
 const enemyStatuses = Array(28).fill("newlife");
-let currentRoomIndex = 0;
 
+let currentRoomIndex = 0;
 let gameState = {
     mode: 'overworld',
     canMove: true
@@ -67,7 +65,6 @@ let enemyAnimFrame = 0;
 const enemyAnimInterval = 250;
 
 let player = createPlayer();
-
 let inventory = createInventory();
 
 let roomTransition = {
@@ -82,7 +79,7 @@ let roomTransition = {
     roomGap: 0
 };
 
-// Input handling
+// Input handling remains the same
 const keys = {};
 window.addEventListener("keydown", (e) => {
     if (!keys[e.key]) handleKeyPress(e.key);
@@ -129,7 +126,7 @@ function update() {
         }
     }
 
-    // Smooth move
+    // Player position update
     const movementCompleted = updatePlayerPosition(player);
     
     if (movementCompleted) {
@@ -251,3 +248,13 @@ function gameLoop() {
     draw();
     requestAnimationFrame(gameLoop);
 }
+
+// Asset loading remains the same
+assets.forEach(img => {
+    img.onload = () => {
+        assetsLoaded++;
+        if (assetsLoaded === assets.length) {
+            requestAnimationFrame(gameLoop);
+        }
+    };
+});
