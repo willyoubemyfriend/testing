@@ -1,3 +1,4 @@
+import { TILE_SIZE } from './roomSystem.js';
 export function createPlayer(x = 1, y = 1, speed = 1) {
     return {
         x: x,
