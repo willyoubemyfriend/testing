@@ -4,7 +4,6 @@ import {
     drawRoom, canMove 
 } from './roomSystem.js';
 
-
 import {
     createInventory,
     toggleInventory,
@@ -18,14 +17,14 @@ import {
     createPlayer,
     createPlayerStats,
     updatePlayerPosition,
-    attemptPlayerMovement
+    drawPlayer
 } from './playerSystem.js';
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
-// Asset loading
+// Load assets
 const playerImg = new Image();
 playerImg.src = 'assets/player.png';
 
@@ -50,7 +49,7 @@ creatureGrid.src = 'assets/creature_grid.png';
 const assets = [playerImg, tileset, inventoryImg, playerImage, enemyIcons, enemyStatusesImg, creatureGrid];
 let assetsLoaded = 0;
 
-// Game state
+// Initialize game objects
 const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
 const enemyStatuses = Array(28).fill("newlife");
@@ -66,7 +65,9 @@ let enemyAnimFrame = 0;
 const enemyAnimInterval = 250;
 
 let player = createPlayer();
+
 let inventory = createInventory();
+
 let roomTransition = {
     active: false,
     direction: null,
@@ -116,15 +117,22 @@ function update() {
         else if (keys["ArrowLeft"]) dx = -1;
         else if (keys["ArrowRight"]) dx = 1;
 
-        attemptPlayerMovement(player, dx, dy, (x, y) => canMoveInCurrentRoom(x, y));
+        let nx = player.x + dx;
+        let ny = player.y + dy;
+
+        if ((dx !== 0 || dy !== 0) && canMoveInCurrentRoom(nx, ny)) {
+            player.x = nx;
+            player.y = ny;
+            player.moving = true;
+        }
     }
 
     // Smooth move
-    if (updatePlayerPosition(player)) {
-        // Movement completed - check for exits
+    const movementCompleted = updatePlayerPosition(player);
+    
+    if (movementCompleted) {
         const exits = roomExits[currentRoomIndex];
         const exit = exits.find(e => e.x === player.x && e.y === player.y);
-        
         if (exit) {
             player.x = exit.toX;
             player.y = exit.toY;
@@ -210,10 +218,10 @@ function draw() {
 
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
-        ctx.drawImage(playerImg, playerX, playerY, TILE_SIZE, TILE_SIZE);
+        drawPlayer(ctx, { px: playerX, py: playerY }, playerImg);
     } else {
         drawRoom(ctx, rooms[currentRoomIndex], 0, 0, tileset);
-        ctx.drawImage(playerImg, player.px, player.py, TILE_SIZE, TILE_SIZE);
+        drawPlayer(ctx, player, playerImg);
     }
 
     if (inventory.visible || inventory.transitioning) {
