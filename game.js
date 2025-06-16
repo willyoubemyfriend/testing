@@ -20,13 +20,6 @@ import {
     drawPlayer
 } from './playerSystem.js';
 
-import {
-    npcData,
-    getNpcsInRoom,
-    canMoveToTile as canMoveToTileWithNpcs,
-    drawNpcs
-} from './npcs.js';
-
 import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
@@ -83,13 +76,12 @@ function handleKeyPress(key) {
 }
 
 function canMoveInCurrentRoom(x, y) {
-    // First check basic tile movement
-    if (!canMove(rooms[currentRoomIndex], x, y)) {
-        return false;
+    if (canMove(rooms[currentRoomIndex], x, y)) {
+        return true;
     }
-    
-    // Then check NPC collisions (this will handle exits automatically)
-    return canMoveToTileWithNpcs(currentRoomIndex, x, y);
+
+    const exits = roomExits[currentRoomIndex];
+    return exits.some(e => e.x === x && e.y === y);
 }
 
 function update() {
@@ -203,12 +195,8 @@ function draw() {
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
         drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
-
-        drawNpcs(ctx, roomTransition.fromRoom, fromX, fromY);
-        drawNpcs(ctx, roomTransition.toRoom, toX, toY);
     } else {
         drawRoom(ctx, rooms[currentRoomIndex], 0, 0, assets.tileset);
-        drawNpcs(ctx, currentRoomIndex);
         drawPlayer(ctx, player, assets.playerImg);
     }
 
@@ -246,6 +234,10 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+// Initialize game
+loadAssets(() => {
+    requestAnimationFrame(gameLoop);
+});
 // Initialize game
 loadAssets(() => {
     requestAnimationFrame(gameLoop);
