@@ -27,7 +27,6 @@ export const NPCs = [
         spriteIndex: 1,
         rooms: [
             { roomIndex: 1, x: 5, y: 4, collidable: false },
-            { roomIndex: 2, x: 3, y: 5, collidable: false }
         ]
     }
 ];
