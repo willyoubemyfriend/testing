@@ -83,18 +83,12 @@ function handleKeyPress(key) {
 }
 
 function canMoveInCurrentRoom(x, y) {
-    // Check room tiles first
+    // First check basic tile movement
     if (!canMove(rooms[currentRoomIndex], x, y)) {
         return false;
     }
-
-    // Check exits
-    const exits = roomExits[currentRoomIndex];
-    if (exits.some(e => e.x === x && e.y === y)) {
-        return true;
-    }
-
-    // Check NPC collisions
+    
+    // Then check NPC collisions (this will handle exits automatically)
     return canMoveToTileWithNpcs(currentRoomIndex, x, y);
 }
 
