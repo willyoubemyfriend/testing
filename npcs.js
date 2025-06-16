@@ -15,18 +15,18 @@ export const NPCs = [
     // }
     {
         id: 0,
-        name: "Old Man",
+        name: "Lookie",
         spriteIndex: 0,
         rooms: [
-            { roomIndex: 0, x: 3, y: 3, collidable: true }
+            { roomIndex: 0, x: 3, y: 3, collidable: false }
         ]
     },
     {
         id: 1,
-        name: "Ghost",
+        name: "Taciturnip",
         spriteIndex: 1,
         rooms: [
-            { roomIndex: 1, x: 5, y: 4, collidable: false },
+            { roomIndex: 1, x: 5, y: 5, collidable: true },
         ]
     }
 ];
