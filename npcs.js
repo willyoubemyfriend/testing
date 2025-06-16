@@ -1,76 +1,63 @@
+// npcs.js
 import { TILE_SIZE } from './roomSystem.js';
-import { roomExits } from './roomSystem.js';
 
+export const npcSpritesheet = new Image();
+npcSpritesheet.src = 'assets/npc_sprites.png';
 
-// NPC data structure
-export const npcData = [
+export const NPCs = [
+    // Format:
+    // {
+    //   id: number,
+    //   name: string,
+    //   spriteIndex: number, // x-position in spritesheet (0-based)
+    //   rooms: [ { roomIndex, x, y, collidable } ],
+    //   dialogue: [] // (to be implemented later)
+    // }
     {
         id: 0,
-        name: "Eyestrom",
-        spriteIndex: 0, // Corresponds to position in npc_sprites.png
-        room: 0, // Room index where this NPC appears
-        x: 3,    // Tile X position
-        y: 4,     // Tile Y position
-        collidable: true,
-        dialogue: ["Back in my day...", "The dungeon wasn't so sticky!"]
+        name: "Old Man",
+        spriteIndex: 0,
+        rooms: [
+            { roomIndex: 0, x: 3, y: 3, collidable: true }
+        ]
     },
     {
         id: 1,
-        name: "Taciturnip A",
+        name: "Ghost",
         spriteIndex: 1,
-        room: 1,
-        x: 8,
-        y: 1,
-        collidable: true,
-        dialogue: ["I'm not wearing anything under here.", "What? You can't see anything!"]
-    },
-    {
-        id: 2,
-        name: "Blooby",
-        spriteIndex: 2,
-        room: 2,
-        x: 4,
-        y: 4,
-        collidable: false,
-        dialogue: ["I'm Blooby!", "I sell nothing... because I'm broke as fuck"]
+        rooms: [
+            { roomIndex: 1, x: 5, y: 4, collidable: false },
+            { roomIndex: 2, x: 3, y: 5, collidable: false }
+        ]
     }
 ];
 
-// NPC image
-const npcSprites = new Image();
-npcSprites.src = 'assets/npc_sprites.png';
-
-export function getNpcsInRoom(roomIndex) {
-    return npcData.filter(npc => npc.room === roomIndex);
+export function getNPCsInRoom(roomIndex) {
+    return NPCs.flatMap(npc => {
+        return npc.rooms
+            .filter(room => room.roomIndex === roomIndex)
+            .map(room => ({ ...npc, ...room }));
+    });
 }
 
-export function canMoveToTile(roomIndex, x, y, ignoreNpcs = false) {
-    // First check if this is an exit tile
-    const exits = roomExits[roomIndex];
-    if (exits && exits.some(exit => exit.x === x && exit.y === y)) {
-        return true; // Always allow movement to exit tiles
-    }
-    
-    if (ignoreNpcs) return true;
-    
-    const npcs = getNpcsInRoom(roomIndex);
-    return !npcs.some(npc => 
-        npc.collidable && 
-        npc.x === x && 
-        npc.y === y
-    );
-}
-
-export function drawNpcs(ctx, roomIndex, offsetX = 0, offsetY = 0) {
-    const npcs = getNpcsInRoom(roomIndex);
+export function drawNPCs(ctx, roomIndex, npcSpritesheet) {
+    const npcs = getNPCsInRoom(roomIndex);
     npcs.forEach(npc => {
         ctx.drawImage(
-            npcSprites,
-            npc.spriteIndex * 16, 0, // Source x, y (using first frame)
-            16, 16,                  // Source width, height
-            npc.x * TILE_SIZE + offsetX,
-            npc.y * TILE_SIZE + offsetY,
-            TILE_SIZE, TILE_SIZE
+            npcSpritesheet,
+            npc.spriteIndex * TILE_SIZE, 0, // source x, y (top row for now)
+            TILE_SIZE, TILE_SIZE,           // source size
+            npc.x * TILE_SIZE, npc.y * TILE_SIZE, // position
+            TILE_SIZE, TILE_SIZE             // display size
         );
     });
+}
+
+export function isNPCCollision(playerX, playerY, roomIndex) {
+    const npcs = getNPCsInRoom(roomIndex);
+    return npcs.some(npc => 
+        npc.collidable && 
+        npc.x === playerX && 
+        npc.y === playerY
+    );
 }
