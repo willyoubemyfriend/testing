@@ -1,4 +1,3 @@
-// game.js
 import { 
     TILE_SIZE, MAP_WIDTH, MAP_HEIGHT, 
     rooms, roomExits, 
@@ -21,10 +20,7 @@ import {
     drawPlayer
 } from './playerSystem.js';
 
-import {
-    ASSET_PATHS,
-    loadAssets
-} from './assetSystem.js';
+import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -232,11 +228,13 @@ function draw() {
 let enemyFrame = 0;
 let frameCounter = 0;
 
-// Start the game after assets load
-let assets;
-function startGame(loadedAssets) {
-    assets = loadedAssets;
+function gameLoop() {
+    update();
+    draw();
     requestAnimationFrame(gameLoop);
 }
 
-loadAssets(startGame);
+// Initialize game
+loadAssets(() => {
+    requestAnimationFrame(gameLoop);
+});
