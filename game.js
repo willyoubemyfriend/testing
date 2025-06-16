@@ -21,6 +21,12 @@ import {
     drawPlayer
 } from './playerSystem.js';
 
+import { 
+    npcSpritesheet,
+    drawNPCs,
+    isNPCCollision 
+} from './npcs.js';
+
 import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
@@ -77,8 +83,10 @@ function handleKeyPress(key) {
 }
 
 function canMoveInCurrentRoom(x, y) {
+    // Check room tiles first
     if (canMove(rooms[currentRoomIndex], x, y)) {
-        return true;
+        // Then check for collidable NPCs
+        return !isNPCCollision(x, y, currentRoomIndex);
     }
 
     const exits = roomExits[currentRoomIndex];
@@ -198,6 +206,7 @@ function draw() {
         drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
     } else {
         drawRoom(ctx, rooms[currentRoomIndex], 0, 0, assets.tileset);
+        drawNPCs(ctx, currentRoomIndex, assets.npcSpritesheet);
         drawPlayer(ctx, player, assets.playerImg);
     }
 
