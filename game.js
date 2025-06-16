@@ -20,6 +20,13 @@ import {
     drawPlayer
 } from './playerSystem.js';
 
+import {
+    npcData,
+    getNpcsInRoom,
+    canMoveToTile as canMoveToTileWithNpcs,
+    drawNpcs
+} from './npcs.js';
+
 import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
@@ -76,12 +83,19 @@ function handleKeyPress(key) {
 }
 
 function canMoveInCurrentRoom(x, y) {
-    if (canMove(rooms[currentRoomIndex], x, y)) {
+    // Check room tiles first
+    if (!canMove(rooms[currentRoomIndex], x, y)) {
+        return false;
+    }
+
+    // Check exits
+    const exits = roomExits[currentRoomIndex];
+    if (exits.some(e => e.x === x && e.y === y)) {
         return true;
     }
 
-    const exits = roomExits[currentRoomIndex];
-    return exits.some(e => e.x === x && e.y === y);
+    // Check NPC collisions
+    return canMoveToTileWithNpcs(currentRoomIndex, x, y);
 }
 
 function update() {
@@ -195,8 +209,12 @@ function draw() {
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
         drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
+
+        drawNpcs(ctx, roomTransition.fromRoom, fromX, fromY);
+        drawNpcs(ctx, roomTransition.toRoom, toX, toY);
     } else {
         drawRoom(ctx, rooms[currentRoomIndex], 0, 0, assets.tileset);
+        drawNpcs(ctx, currentRoomIndex);
         drawPlayer(ctx, player, assets.playerImg);
     }
 
