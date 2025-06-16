@@ -1,5 +1,6 @@
-// npcs.js
 import { TILE_SIZE } from './roomSystem.js';
+import { roomExits } from './roomSystem.js';
+
 
 // NPC data structure
 export const npcData = [
@@ -44,6 +45,12 @@ export function getNpcsInRoom(roomIndex) {
 }
 
 export function canMoveToTile(roomIndex, x, y, ignoreNpcs = false) {
+    // First check if this is an exit tile
+    const exits = roomExits[roomIndex];
+    if (exits && exits.some(exit => exit.x === x && exit.y === y)) {
+        return true; // Always allow movement to exit tiles
+    }
+    
     if (ignoreNpcs) return true;
     
     const npcs = getNpcsInRoom(roomIndex);
