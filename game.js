@@ -1,3 +1,4 @@
+// game.js
 import { 
     TILE_SIZE, MAP_WIDTH, MAP_HEIGHT, 
     rooms, roomExits, 
@@ -20,34 +21,14 @@ import {
     drawPlayer
 } from './playerSystem.js';
 
+import {
+    ASSET_PATHS,
+    loadAssets
+} from './assetSystem.js';
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
-
-// Load assets
-const playerImg = new Image();
-playerImg.src = 'assets/player.png';
-
-const tileset = new Image();
-tileset.src = 'assets/tileset.png';
-
-const inventoryImg = new Image();
-inventoryImg.src = 'assets/inventory.png';
-
-const playerImage = new Image();
-playerImage.src = 'assets/player_image.png';
-
-const enemyIcons = new Image();
-enemyIcons.src = 'assets/enemy_icons.png';
-
-const enemyStatusesImg = new Image();
-enemyStatusesImg.src = 'assets/enemy_statuses.png';
-
-const creatureGrid = new Image();
-creatureGrid.src = 'assets/creature_grid.png';
-
-const assets = [playerImg, tileset, inventoryImg, playerImage, enemyIcons, enemyStatusesImg, creatureGrid];
-let assetsLoaded = 0;
 
 // Initialize game state
 const playerStats = createPlayerStats();
@@ -79,7 +60,7 @@ let roomTransition = {
     roomGap: 0
 };
 
-// Input handling remains the same
+// Input handling
 const keys = {};
 window.addEventListener("keydown", (e) => {
     if (!keys[e.key]) handleKeyPress(e.key);
@@ -212,29 +193,37 @@ function draw() {
         const toX = dx * (offset - canvas.width - gap);
         const toY = dy * (offset - canvas.height - gap);
 
-        drawRoom(ctx, fromRoom, fromX, fromY, tileset);
-        drawRoom(ctx, toRoom, toX, toY, tileset);
+        drawRoom(ctx, fromRoom, fromX, fromY, assets.tileset);
+        drawRoom(ctx, toRoom, toX, toY, assets.tileset);
 
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
-        drawPlayer(ctx, { px: playerX, py: playerY }, playerImg);
+        drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
     } else {
-        drawRoom(ctx, rooms[currentRoomIndex], 0, 0, tileset);
-        drawPlayer(ctx, player, playerImg);
+        drawRoom(ctx, rooms[currentRoomIndex], 0, 0, assets.tileset);
+        drawPlayer(ctx, player, assets.playerImg);
     }
 
     if (inventory.visible || inventory.transitioning) {
-        ctx.drawImage(inventoryImg, 0, inventory.y);
+        ctx.drawImage(assets.inventoryImg, 0, inventory.y);
 
         if (inventory.page === 0) {
             ctx.save();
             ctx.translate(0, inventory.y);
-            drawInventoryPage1(ctx, playerStats, playerImage);
+            drawInventoryPage1(ctx, playerStats, assets.playerImage);
             ctx.restore();
         } else if (inventory.page === 2) {
             ctx.save();
             ctx.translate(0, inventory.y);
-            drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, enemyIcons, enemyStatusesImg, creatureGrid);
+            drawInventoryPage3(
+                ctx, 
+                seenEnemies, 
+                enemyStatuses, 
+                enemyFrame, 
+                assets.enemyIcons, 
+                assets.enemyStatusesImg, 
+                assets.creatureGrid
+            );
             ctx.restore();
         }
     }
@@ -243,18 +232,11 @@ function draw() {
 let enemyFrame = 0;
 let frameCounter = 0;
 
-function gameLoop() {
-    update();
-    draw();
+// Start the game after assets load
+let assets;
+function startGame(loadedAssets) {
+    assets = loadedAssets;
     requestAnimationFrame(gameLoop);
 }
 
-// Asset loading remains the same
-assets.forEach(img => {
-    img.onload = () => {
-        assetsLoaded++;
-        if (assetsLoaded === assets.length) {
-            requestAnimationFrame(gameLoop);
-        }
-    };
-});
+loadAssets(startGame);
