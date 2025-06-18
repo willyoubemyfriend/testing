@@ -6,7 +6,8 @@ export const assets = {
     enemyIcons: new Image(),
     enemyStatusesImg: new Image(),
     creatureGrid: new Image(),
-    npcSpritesheet: new Image()
+    npcSpritesheet: new Image(),
+    textboxImg: new Image()
 };
 
 export function loadAssets(callback) {
@@ -19,6 +20,7 @@ export function loadAssets(callback) {
     assets.enemyStatusesImg.src = 'assets/enemy_statuses.png';
     assets.creatureGrid.src = 'assets/creature_grid.png';
     assets.npcSpritesheet.src = 'assets/npc_sprites.png';
+    assets.textboxImg.src = 'assets/textbox.png';
 
     let loadedCount = 0;
     const totalAssets = Object.keys(assets).length;
