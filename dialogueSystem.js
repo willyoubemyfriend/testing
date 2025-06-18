@@ -62,7 +62,7 @@ export function advanceDialogue(dialogueSystem) {
 }
 
 export function drawDialogue(ctx, dialogueSystem, textboxImg) {
-    if (dialogueSystem.state === DIALOGUE_STATE.INACTIVE) return;
+    if (dialogueSystem.state === DIALOGUE_STATE.INACTIVE || !textboxImg.complete) return;
 
     // Draw textbox (centered horizontally, at bottom)
     const textboxX = (ctx.canvas.width - 160) / 2;
