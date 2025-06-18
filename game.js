@@ -28,6 +28,16 @@ import {
     drawNPCsInTransition
 } from './npcs.js';
 
+import { 
+    textboxImg,
+    createDialogueSystem,
+    startDialogue,
+    updateDialogue,
+    advanceDialogue,
+    drawDialogue,
+    DIALOGUE_STATE
+} from './dialogueSystem.js';
+
 import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
