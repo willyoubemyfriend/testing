@@ -4,7 +4,6 @@ import {
     drawRoom, canMove 
 } from './roomSystem.js';
 
-
 import {
     createInventory,
     toggleInventory,
@@ -74,6 +73,8 @@ let roomTransition = {
     roomGap: 0
 };
 
+let dialogueSystem = createDialogueSystem();
+
 // Input handling
 const keys = {};
 window.addEventListener("keydown", (e) => {
@@ -85,6 +86,22 @@ window.addEventListener("keyup", (e) => {
 });
 
 function handleKeyPress(key) {
+    // Dialogue advancement
+    if (dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
+        if (key === "z") advanceDialogue(dialogueSystem);
+        return;
+    }
+
+    // NEW: Z-to-talk when facing NPC
+    if (key === "z") {
+        const npcs = getNPCsInRoom(currentRoomIndex);
+        const facingX = player.x + (keys["ArrowRight"] ? 1 : keys["ArrowLeft"] ? -1 : 0);
+        const facingY = player.y + (keys["ArrowDown"] ? 1 : keys["ArrowUp"] ? -1 : 0);
+        
+        const npc = npcs.find(n => n.x === facingX && n.y === facingY);
+        if (npc?.dialogue) startDialogue(dialogueSystem, npc.dialogue);
+    }
+
     if (key === "i") toggleInventory(inventory, canvas, gameState);
 
     if (gameState.mode === 'inventory' && !inventory.transitioning) {
@@ -105,6 +122,12 @@ function canMoveInCurrentRoom(x, y) {
 }
 
 function update() {
+    // Dialogue updates
+    if (dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
+        updateDialogue(dialogueSystem);
+        return; // Pause other updates during dialogue
+    }
+
     // Movement logic
     if (gameState.mode === 'overworld' && gameState.canMove && !player.moving) {
         let dx = 0, dy = 0;
@@ -209,25 +232,26 @@ function draw() {
         const toX = dx * (offset - canvas.width - gap);
         const toY = dy * (offset - canvas.height - gap);
 
-        // Draw rooms
         drawRoom(ctx, fromRoom, fromX, fromY, assets.tileset);
         drawRoom(ctx, toRoom, toX, toY, assets.tileset);
-
-        // Draw NPCs for both rooms
         drawNPCsInTransition(ctx, roomTransition.fromRoom, fromX, fromY, assets.npcSpritesheet);
         drawNPCsInTransition(ctx, roomTransition.toRoom, toX, toY, assets.npcSpritesheet);
 
-        // Draw player
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
         drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
     } else {
-        // Normal drawing when not transitioning
         drawRoom(ctx, rooms[currentRoomIndex], 0, 0, assets.tileset);
-        drawNPCs(ctx, currentRoomIndex, assets.npcSpritesheet);
+        drawNPCs(ctx, currentRoomIndex, assets.npcSpritesheet, player, keys);
         drawPlayer(ctx, player, assets.playerImg);
     }
 
+    // Dialogue (drawn above world but below inventory)
+    if (dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
+        drawDialogue(ctx, dialogueSystem, assets.textboxImg);
+    }
+
+    // Inventory (drawn on top of everything)
     if (inventory.visible || inventory.transitioning) {
         ctx.drawImage(assets.inventoryImg, 0, inventory.y);
 
@@ -256,17 +280,13 @@ function draw() {
 let enemyFrame = 0;
 let frameCounter = 0;
 
+// Initialize game
+loadAssets(() => {
+    requestAnimationFrame(gameLoop);
+});
+
 function gameLoop() {
     update();
     draw();
     requestAnimationFrame(gameLoop);
 }
-
-// Initialize game
-loadAssets(() => {
-    requestAnimationFrame(gameLoop);
-});
-// Initialize game
-loadAssets(() => {
-    requestAnimationFrame(gameLoop);
-});
