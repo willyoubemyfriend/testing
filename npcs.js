@@ -39,15 +39,16 @@ export function getNPCsInRoom(roomIndex) {
     });
 }
 
-export function drawNPCs(ctx, roomIndex, npcSpritesheet) {
+export function drawNPCs(ctx, roomIndex, npcSpritesheet, offsetX = 0, offsetY = 0) {
     const npcs = getNPCsInRoom(roomIndex);
     npcs.forEach(npc => {
         ctx.drawImage(
             npcSpritesheet,
-            npc.spriteIndex * TILE_SIZE, 0, // source x, y (top row for now)
-            TILE_SIZE, TILE_SIZE,           // source size
-            npc.x * TILE_SIZE, npc.y * TILE_SIZE, // position
-            TILE_SIZE, TILE_SIZE             // display size
+            npc.spriteIndex * TILE_SIZE, 0,
+            TILE_SIZE, TILE_SIZE,
+            npc.x * TILE_SIZE + offsetX, 
+            npc.y * TILE_SIZE + offsetY,
+            TILE_SIZE, TILE_SIZE
         );
     });
 }
