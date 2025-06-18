@@ -24,7 +24,8 @@ import {
     npcSpritesheet,
     drawNPCs,
     isNPCCollision,
-    drawNPCsInTransition
+    drawNPCsInTransition,
+    getNPCsInRoom
 } from './npcs.js';
 
 import { 
