@@ -144,16 +144,12 @@ function update() {
 
     // Room Transitions
     if (roomTransition.active) {
-        // 1. First update the transition progress (KEEP THIS ESSENTIAL PART)
-        roomTransition.progress += roomTransition.speed;
-    
-        const isHorizontal = roomTransition.direction === "left" || roomTransition.direction === "right";
-        const transitionLimit = (isHorizontal ? canvas.width : canvas.height) + roomTransition.roomGap;
-    
-        // 2. Then handle the drawing with NPCs
         const offset = roomTransition.progress;
         const gap = roomTransition.roomGap;
+    
         const dir = roomTransition.direction;
+        const fromRoom = rooms[roomTransition.fromRoom];
+        const toRoom = rooms[roomTransition.toRoom];
     
         let dx = 0, dy = 0;
         if (dir === "left") dx = 1;
@@ -166,29 +162,21 @@ function update() {
         const toX = dx * (offset - canvas.width - gap);
         const toY = dy * (offset - canvas.height - gap);
     
-        // Draw both rooms and their NPCs
-        drawRoom(ctx, rooms[roomTransition.fromRoom], fromX, fromY, assets.tileset);
-        drawRoom(ctx, rooms[roomTransition.toRoom], toX, toY, assets.tileset);
+        // Draw rooms with NPCs
+        drawRoom(ctx, fromRoom, fromX, fromY, assets.tileset);
         drawNPCs(ctx, roomTransition.fromRoom, assets.npcSpritesheet, fromX, fromY);
+        
+        drawRoom(ctx, toRoom, toX, toY, assets.tileset);
         drawNPCs(ctx, roomTransition.toRoom, assets.npcSpritesheet, toX, toY);
     
-        // Draw player in new room's position
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
         drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
-    
-        // 3. Finally check transition completion (KEEP THIS ESSENTIAL PART)
-        if (roomTransition.progress >= transitionLimit) {
-            currentRoomIndex = roomTransition.toRoom;
-            player.x = roomTransition.playerStartX;
-            player.y = roomTransition.playerStartY;
-            player.px = player.x * TILE_SIZE;
-            player.py = player.y * TILE_SIZE;
-            player.moving = false;
-    
-            roomTransition.active = false;
-            gameState.canMove = true;
-        }
+    } else {
+        // Normal drawing when not transitioning
+        drawRoom(ctx, rooms[currentRoomIndex], 0, 0, assets.tileset);
+        drawNPCs(ctx, currentRoomIndex, assets.npcSpritesheet);
+        drawPlayer(ctx, player, assets.playerImg);
     }
 
     // Animation timers
