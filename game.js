@@ -94,19 +94,25 @@ function handleKeyPress(key) {
     }
 
     // NEW: Z-to-talk when facing NPC
-    if (key === "z") {
+    if (key === "z" && dialogueSystem.state === DIALOGUE_STATE.INACTIVE) {
         const npcs = getNPCsInRoom(currentRoomIndex);
-        const facingX = player.x + (keys["ArrowRight"] ? 1 : keys["ArrowLeft"] ? -1 : 0);
-        const facingY = player.y + (keys["ArrowDown"] ? 1 : keys["ArrowUp"] ? -1 : 0);
         
-        const npc = npcs.find(n => 
-            (n.x === facingX && n.y === facingY) || // Facing
-            (n.x === player.x && n.y === player.y) // Or on same tile (fallback)
-        );
-        
+        // Check adjacent positions (up, down, left, right)
+        const adjacentPositions = [
+            { x: player.x, y: player.y - 1 }, // up
+            { x: player.x, y: player.y + 1 }, // down
+            { x: player.x - 1, y: player.y }, // left
+            { x: player.x + 1, y: player.y }  // right
+        ];
+    
+        // Find first NPC at any adjacent position
+        const npc = adjacentPositions.reduce((found, pos) => {
+            if (found) return found;
+            return npcs.find(n => n.x === pos.x && n.y === pos.y);
+        }, null);
+    
         if (npc?.dialogue) {
             startDialogue(dialogueSystem, npc.dialogue);
-            return; // Prevent other Z-key actions
         }
     }
 
