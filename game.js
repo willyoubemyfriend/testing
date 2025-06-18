@@ -198,13 +198,20 @@ function draw() {
         const toX = dx * (offset - canvas.width - gap);
         const toY = dy * (offset - canvas.height - gap);
 
+        // Draw rooms
         drawRoom(ctx, fromRoom, fromX, fromY, assets.tileset);
         drawRoom(ctx, toRoom, toX, toY, assets.tileset);
 
+        // Draw NPCs for both rooms
+        drawNPCsInTransition(ctx, roomTransition.fromRoom, fromX, fromY, assets.npcSpritesheet);
+        drawNPCsInTransition(ctx, roomTransition.toRoom, toX, toY, assets.npcSpritesheet);
+
+        // Draw player
         const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
         const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
         drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
     } else {
+        // Normal drawing when not transitioning
         drawRoom(ctx, rooms[currentRoomIndex], 0, 0, assets.tileset);
         drawNPCs(ctx, currentRoomIndex, assets.npcSpritesheet);
         drawPlayer(ctx, player, assets.playerImg);
