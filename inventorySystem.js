@@ -110,7 +110,7 @@ export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, 
     }
 }
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
     for (let n = 0; n < words.length; n++) {
