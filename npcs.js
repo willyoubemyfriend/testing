@@ -39,6 +39,20 @@ export function getNPCsInRoom(roomIndex) {
     });
 }
 
+export function drawNPCsInTransition(ctx, roomIndex, offsetX, offsetY, npcSpritesheet) {
+    const npcs = getNPCsInRoom(roomIndex);
+    npcs.forEach(npc => {
+        ctx.drawImage(
+            npcSpritesheet,
+            npc.spriteIndex * TILE_SIZE, 0,
+            TILE_SIZE, TILE_SIZE,
+            npc.x * TILE_SIZE + offsetX,
+            npc.y * TILE_SIZE + offsetY,
+            TILE_SIZE, TILE_SIZE
+        );
+    });
+}
+
 export function drawNPCs(ctx, roomIndex, npcSpritesheet) {
     const npcs = getNPCsInRoom(roomIndex);
     npcs.forEach(npc => {
