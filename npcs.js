@@ -58,13 +58,13 @@ export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
             (Math.abs(player.x - npc.x) === 1 && player.y === npc.y) || // Left/right
             (Math.abs(player.y - npc.y) === 1 && player.x === npc.x)    // Up/down
         );
-
+        
         if (isAdjacent && npc.dialogue) {
             ctx.fillStyle = "white";
             ctx.font = '8px "Press Start 2P"';
             ctx.textAlign = "center";
             ctx.fillText("Z", npc.x * TILE_SIZE + 8, npc.y * TILE_SIZE - 8);
-            ctx.textAlign = "left"; // Reset alignment
+            ctx.textAlign = "left";
         }
     });
 }
