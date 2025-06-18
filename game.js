@@ -99,8 +99,15 @@ function handleKeyPress(key) {
         const facingX = player.x + (keys["ArrowRight"] ? 1 : keys["ArrowLeft"] ? -1 : 0);
         const facingY = player.y + (keys["ArrowDown"] ? 1 : keys["ArrowUp"] ? -1 : 0);
         
-        const npc = npcs.find(n => n.x === facingX && n.y === facingY);
-        if (npc?.dialogue) startDialogue(dialogueSystem, npc.dialogue);
+        const npc = npcs.find(n => 
+            (n.x === facingX && n.y === facingY) || // Facing
+            (n.x === player.x && n.y === player.y) // Or on same tile (fallback)
+        );
+        
+        if (npc?.dialogue) {
+            startDialogue(dialogueSystem, npc.dialogue);
+            return; // Prevent other Z-key actions
+        }
     }
 
     if (key === "i") toggleInventory(inventory, canvas, gameState);
