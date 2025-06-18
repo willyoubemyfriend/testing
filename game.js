@@ -24,7 +24,8 @@ import {
 import { 
     npcSpritesheet,
     drawNPCs,
-    isNPCCollision 
+    isNPCCollision,
+    drawNPCsInTransition
 } from './npcs.js';
 
 import { assets, loadAssets } from './assetLoader.js';
