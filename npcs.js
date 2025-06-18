@@ -57,21 +57,16 @@ export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
 
         // Draw "Z" prompt when player is facing NPC and not in dialogue
         const isFacing = (
-            (player.x === npc.x && (
-                (player.y === npc.y + 1 && keys["ArrowUp"]) ||
-                (player.y === npc.y - 1 && keys["ArrowDown"])
-            )) ||
-            (player.y === npc.y && (
-                (player.x === npc.x + 1 && keys["ArrowLeft"]) ||
-                (player.x === npc.x - 1 && keys["ArrowRight"])
-            ))
+            (player.x === npc.x && Math.abs(player.y - npc.y) === 1) || 
+            (player.y === npc.y && Math.abs(player.x - npc.x) === 1
         );
 
         if (isFacing && npc.dialogue) {
-            ctx.fillStyle = "white";
-            ctx.font = '8px "Press Start 2P"';
-            ctx.textAlign = "center";
-            ctx.fillText("Z", npc.x * TILE_SIZE + 8, npc.y * TILE_SIZE - 8);
+        ctx.fillStyle = "white";
+        ctx.font = '8px "Press Start 2P"';
+        ctx.textAlign = "center";
+        ctx.fillText("Z", npc.x * TILE_SIZE + 8, npc.y * TILE_SIZE - 8);
+        ctx.textAlign = "left"; // Reset alignment
         }
     });
 }
