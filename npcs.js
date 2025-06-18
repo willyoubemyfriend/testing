@@ -1,4 +1,3 @@
-// npcs.js
 import { TILE_SIZE } from './roomSystem.js';
 
 export const NPC_SPRITESHEET_PATH = 'assets/npc_sprites.png';
@@ -32,7 +31,6 @@ export const NPCs = [
             "I have nothing to say."
         ]
     }
-    // Add more NPCs as needed
 ];
 
 export function getNPCsInRoom(roomIndex) {
@@ -55,18 +53,18 @@ export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
             TILE_SIZE, TILE_SIZE
         );
 
-        // Draw "Z" prompt when player is facing NPC and not in dialogue
-        const isFacing = (
-            (player.x === npc.x && Math.abs(player.y - npc.y) === 1) || 
-            (player.y === npc.y && Math.abs(player.x - npc.x) === 1
+        // Draw "Z" prompt when player is facing NPC
+        const isAdjacent = (
+            (Math.abs(player.x - npc.x) === 1 && player.y === npc.y) || // Left/right
+            (Math.abs(player.y - npc.y) === 1 && player.x === npc.x)    // Up/down
         );
 
-        if (isFacing && npc.dialogue) {
-        ctx.fillStyle = "white";
-        ctx.font = '8px "Press Start 2P"';
-        ctx.textAlign = "center";
-        ctx.fillText("Z", npc.x * TILE_SIZE + 8, npc.y * TILE_SIZE - 8);
-        ctx.textAlign = "left"; // Reset alignment
+        if (isAdjacent && npc.dialogue) {
+            ctx.fillStyle = "white";
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = "center";
+            ctx.fillText("Z", npc.x * TILE_SIZE + 8, npc.y * TILE_SIZE - 8);
+            ctx.textAlign = "left"; // Reset alignment
         }
     });
 }
