@@ -1,34 +1,38 @@
 // npcs.js
 import { TILE_SIZE } from './roomSystem.js';
 
+export const NPC_SPRITESHEET_PATH = 'assets/npc_sprites.png';
 export const npcSpritesheet = new Image();
-npcSpritesheet.src = 'assets/npc_sprites.png';
+npcSpritesheet.src = NPC_SPRITESHEET_PATH;
 
 export const NPCs = [
-    // Format:
-    // {
-    //   id: number,
-    //   name: string,
-    //   spriteIndex: number, // x-position in spritesheet (0-based)
-    //   rooms: [ { roomIndex, x, y, collidable } ],
-    //   dialogue: [] // (to be implemented later)
-    // }
     {
         id: 0,
         name: "Lookie",
-        spriteIndex: 0,
+        spriteIndex: 0, // First sprite in the sheet
         rooms: [
             { roomIndex: 0, x: 3, y: 3, collidable: false }
+        ],
+        dialogue: [
+            "Hello wanderer!",
+            "Press Z to talk to NPCs.",
+            "Try facing me and pressing Z!"
         ]
     },
     {
         id: 1,
         name: "Taciturnip",
-        spriteIndex: 1,
+        spriteIndex: 1, // Second sprite in the sheet
         rooms: [
-            { roomIndex: 1, x: 5, y: 5, collidable: true },
+            { roomIndex: 1, x: 5, y: 5, collidable: true }
+        ],
+        dialogue: [
+            "...",
+            "......",
+            "I have nothing to say."
         ]
     }
+    // Add more NPCs as needed
 ];
 
 export function getNPCsInRoom(roomIndex) {
@@ -36,6 +40,39 @@ export function getNPCsInRoom(roomIndex) {
         return npc.rooms
             .filter(room => room.roomIndex === roomIndex)
             .map(room => ({ ...npc, ...room }));
+    });
+}
+
+export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
+    const npcs = getNPCsInRoom(roomIndex);
+    npcs.forEach(npc => {
+        // Draw NPC sprite
+        ctx.drawImage(
+            npcSpritesheet,
+            npc.spriteIndex * TILE_SIZE, 0,
+            TILE_SIZE, TILE_SIZE,
+            npc.x * TILE_SIZE, npc.y * TILE_SIZE,
+            TILE_SIZE, TILE_SIZE
+        );
+
+        // Draw "Z" prompt when player is facing NPC and not in dialogue
+        const isFacing = (
+            (player.x === npc.x && (
+                (player.y === npc.y + 1 && keys["ArrowUp"]) ||
+                (player.y === npc.y - 1 && keys["ArrowDown"])
+            )) ||
+            (player.y === npc.y && (
+                (player.x === npc.x + 1 && keys["ArrowLeft"]) ||
+                (player.x === npc.x - 1 && keys["ArrowRight"])
+            ))
+        );
+
+        if (isFacing && npc.dialogue) {
+            ctx.fillStyle = "white";
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = "center";
+            ctx.fillText("Z", npc.x * TILE_SIZE + 8, npc.y * TILE_SIZE - 8);
+        }
     });
 }
 
@@ -49,19 +86,6 @@ export function drawNPCsInTransition(ctx, roomIndex, offsetX, offsetY, npcSprite
             npc.x * TILE_SIZE + offsetX,
             npc.y * TILE_SIZE + offsetY,
             TILE_SIZE, TILE_SIZE
-        );
-    });
-}
-
-export function drawNPCs(ctx, roomIndex, npcSpritesheet) {
-    const npcs = getNPCsInRoom(roomIndex);
-    npcs.forEach(npc => {
-        ctx.drawImage(
-            npcSpritesheet,
-            npc.spriteIndex * TILE_SIZE, 0, // source x, y (top row for now)
-            TILE_SIZE, TILE_SIZE,           // source size
-            npc.x * TILE_SIZE, npc.y * TILE_SIZE, // position
-            TILE_SIZE, TILE_SIZE             // display size
         );
     });
 }
