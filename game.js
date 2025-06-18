@@ -144,11 +144,40 @@ function update() {
 
     // Room Transitions
     if (roomTransition.active) {
+        // 1. First update the transition progress (KEEP THIS ESSENTIAL PART)
         roomTransition.progress += roomTransition.speed;
-
+    
         const isHorizontal = roomTransition.direction === "left" || roomTransition.direction === "right";
         const transitionLimit = (isHorizontal ? canvas.width : canvas.height) + roomTransition.roomGap;
-
+    
+        // 2. Then handle the drawing with NPCs
+        const offset = roomTransition.progress;
+        const gap = roomTransition.roomGap;
+        const dir = roomTransition.direction;
+    
+        let dx = 0, dy = 0;
+        if (dir === "left") dx = 1;
+        else if (dir === "right") dx = -1;
+        else if (dir === "up") dy = 1;
+        else if (dir === "down") dy = -1;
+    
+        const fromX = dx * offset;
+        const fromY = dy * offset;
+        const toX = dx * (offset - canvas.width - gap);
+        const toY = dy * (offset - canvas.height - gap);
+    
+        // Draw both rooms and their NPCs
+        drawRoom(ctx, rooms[roomTransition.fromRoom], fromX, fromY, assets.tileset);
+        drawRoom(ctx, rooms[roomTransition.toRoom], toX, toY, assets.tileset);
+        drawNPCs(ctx, roomTransition.fromRoom, assets.npcSpritesheet, fromX, fromY);
+        drawNPCs(ctx, roomTransition.toRoom, assets.npcSpritesheet, toX, toY);
+    
+        // Draw player in new room's position
+        const playerX = roomTransition.playerStartX * TILE_SIZE + toX;
+        const playerY = roomTransition.playerStartY * TILE_SIZE + toY;
+        drawPlayer(ctx, { px: playerX, py: playerY }, assets.playerImg);
+    
+        // 3. Finally check transition completion (KEEP THIS ESSENTIAL PART)
         if (roomTransition.progress >= transitionLimit) {
             currentRoomIndex = roomTransition.toRoom;
             player.x = roomTransition.playerStartX;
@@ -156,7 +185,7 @@ function update() {
             player.px = player.x * TILE_SIZE;
             player.py = player.y * TILE_SIZE;
             player.moving = false;
-
+    
             roomTransition.active = false;
             gameState.canMove = true;
         }
