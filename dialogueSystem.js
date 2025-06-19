@@ -83,7 +83,7 @@ export function drawDialogue(ctx, dialogueSystem, textboxImg) {
 
     // Dialogue text positioning (independent of other systems)
     const textX = 16;
-    const textY = 96;
+    const textY = 100;
     const maxWidth = 128;
     const lineHeight = 10;
 
