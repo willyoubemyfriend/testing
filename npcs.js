@@ -43,6 +43,12 @@ export function getNPCsInRoom(roomIndex) {
 
 export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
     const npcs = getNPCsInRoom(roomIndex);
+
+    const originalTextAlign = ctx.textAlign;
+    const originalTextBaseline = ctx.textBaseline;
+    const originalFillStyle = ctx.fillStyle;
+    const originalFont = ctx.font;
+    
     npcs.forEach(npc => {
         // Draw NPC sprite
         ctx.drawImage(
@@ -54,6 +60,12 @@ export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
         );
 
         // Draw "Z" prompt when player is facing NPC
+
+        ctx.fillStyle = "white";
+        ctx.font = '8px "Press Start 2P"';
+        ctx.textBaseline = "top";
+        ctx.textAlign = "center";
+        
         const isAdjacent = (
             (Math.abs(player.x - npc.x) === 1 && player.y === npc.y) || // Left/right
             (Math.abs(player.y - npc.y) === 1 && player.x === npc.x)    // Up/down
@@ -67,6 +79,11 @@ export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
             ctx.textAlign = "left";
         }
     });
+    
+    ctx.textAlign = originalTextAlign;
+    ctx.textBaseline = originalTextBaseline;
+    ctx.fillStyle = originalFillStyle;
+    ctx.font = originalFont;
 }
 
 export function drawNPCsInTransition(ctx, roomIndex, offsetX, offsetY, npcSpritesheet) {
