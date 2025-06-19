@@ -77,7 +77,7 @@ export function drawDialogue(ctx, dialogueSystem, textboxImg) {
 
     // Set DIALOGUE-SPECIFIC text styles
     ctx.fillStyle = "white";
-    ctx.font = '16 "friendfont"';
+    ctx.font = '16px "friendfont"';
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
 
