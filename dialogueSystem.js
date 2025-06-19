@@ -62,26 +62,39 @@ export function advanceDialogue(dialogueSystem) {
 }
 
 export function drawDialogue(ctx, dialogueSystem, textboxImg) {
-    if (dialogueSystem.state === DIALOGUE_STATE.INACTIVE || !textboxImg.complete) return;
+    if (dialogueSystem.state === DIALOGUE_STATE.INACTIVE) return;
+
+    // Save original context state
+    const originalTextAlign = ctx.textAlign;
+    const originalTextBaseline = ctx.textBaseline;
+    const originalFillStyle = ctx.fillStyle;
+    const originalFont = ctx.font;
 
     // Draw textbox (centered horizontally, at bottom)
     const textboxX = (ctx.canvas.width - 160) / 2;
     const textboxY = ctx.canvas.height - 144;
     ctx.drawImage(textboxImg, textboxX, textboxY);
 
-    // Set text styles
+    // Set DIALOGUE-SPECIFIC text styles
     ctx.fillStyle = "white";
-    ctx.font = '16px "friendfont"';
+    ctx.font = '8px "Press Start 2P"';
     ctx.textBaseline = "top";
+    ctx.textAlign = "left";
 
-    // Dialogue text
-    const textX = 16;
-    const textY = 106;
-    const maxWidth = 128;
-    const lineHeight = 10;
+    // Dialogue text positioning (independent of other systems)
+    const textX = textboxX + 16;
+    const textY = textboxY + 16;
+    const maxWidth = 160 - 32;
+    const lineHeight = 12;
 
     const currentText = dialogueSystem.currentLines[dialogueSystem.currentLineIndex]
         .substring(0, dialogueSystem.currentCharIndex);
     
     wrapText(ctx, currentText, textX, textY, maxWidth, lineHeight);
+
+    // Restore original context state
+    ctx.textAlign = originalTextAlign;
+    ctx.textBaseline = originalTextBaseline;
+    ctx.fillStyle = originalFillStyle;
+    ctx.font = originalFont;
 }
