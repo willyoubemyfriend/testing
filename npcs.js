@@ -32,6 +32,21 @@ export const NPCs = [
             "That space between this room and the next?",
             "I mean, jeez... talk about bad architecture."
         ]
+    },
+    {
+        id: 2,
+        name: "Blucas",
+        spriteIndex: 2, // Third sprite in the sheet
+        rooms: [
+            { roomIndex: 2, x: 4, y: 4, collidable: true }
+        ],
+        dialogue: [
+            "Please help",
+            "I've been trapped in this dungeon for hours",
+            "There's nothing to do in here",
+            "That guy in the other room took the rest of me",
+            "Sick and twisted asshole"
+        ]
     }
 ];
 
