@@ -77,15 +77,15 @@ export function drawDialogue(ctx, dialogueSystem, textboxImg) {
 
     // Set DIALOGUE-SPECIFIC text styles
     ctx.fillStyle = "white";
-    ctx.font = '8px "Press Start 2P"';
+    ctx.font = '16 "friendfont"';
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
 
     // Dialogue text positioning (independent of other systems)
-    const textX = textboxX + 16;
-    const textY = textboxY + 16;
-    const maxWidth = 160 - 32;
-    const lineHeight = 12;
+    const textX = 16;
+    const textY = 106;
+    const maxWidth = 128;
+    const lineHeight = 10;
 
     const currentText = dialogueSystem.currentLines[dialogueSystem.currentLineIndex]
         .substring(0, dialogueSystem.currentCharIndex);
