@@ -17,7 +17,7 @@ export const NPCs = [
             "I WANT LEMONS CAKE FRUIT CRACKERS BEEF TONGUE SWEAT",
             "WHEAT ICE SAUCE LIVER EYES SALT WEEDS",
             "FINGER BREAST GOAT PEPPER TEARS VEINS NERVES",
-            "I'm overcome by desire... I want to die."
+            "I'm overcome by DESIRE... I can't take it."
         ]
     },
     {
@@ -28,9 +28,9 @@ export const NPCs = [
             { roomIndex: 1, x: 5, y: 5, collidable: true }
         ],
         dialogue: [
-            "I'm naked as FUCK under here man....",
-            "Like I don't have shit on",
-            "It's just my whole dick out"
+            "Did you see that?",
+            "That space between this room and the next?",
+            "I mean, jeez...talk about bad architecture."
         ]
     }
 ];
