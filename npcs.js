@@ -17,7 +17,8 @@ export const NPCs = [
             "I WANT LEMONS CAKE FRUIT CRACKERS BEEF TONGUE SWEAT",
             "WHEAT ICE SAUCE LIVER EYES SALT WEEDS",
             "FINGER BREAST GOAT PEPPER TEARS VEINS NERVES",
-            "Got all that? Fuckin' better."
+            "Got all that?",
+            "You better have."
         ]
     },
     {
