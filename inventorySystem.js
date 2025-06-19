@@ -48,6 +48,10 @@ export function updateInventoryPosition(inventory, gameState) {
 }
 
 export function drawInventoryPage1(ctx, playerStats, playerImage) {
+    const originalTextAlign = ctx.textAlign;
+    const originalTextBaseline = ctx.textBaseline;
+    const originalFillStyle = ctx.fillStyle;
+    const originalFont = ctx.font;
     // Draw the player portrait
     ctx.drawImage(playerImage, 0, 0);
 
@@ -70,6 +74,12 @@ export function drawInventoryPage1(ctx, playerStats, playerImage) {
     ctx.fillText(`ATT: ${playerStats.attack}`, 88, 73);
     ctx.fillText(`DEF: ${playerStats.defense}`, 88, 85);
     ctx.fillText(`DRD: ${playerStats.dread}`, 88, 97);
+   
+    ctx.textAlign = originalTextAlign;
+    ctx.textBaseline = originalTextBaseline;
+    ctx.fillStyle = originalFillStyle;
+    ctx.font = originalFont;
+
 }
 
 export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, enemyIcons, enemyStatusesImg, creatureGrid) {
