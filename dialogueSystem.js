@@ -75,10 +75,10 @@ export function drawDialogue(ctx, dialogueSystem, textboxImg) {
     ctx.textBaseline = "top";
 
     // Dialogue text
-    const textX = 106;
-    const textY = 16;
+    const textX = 16;
+    const textY = 106;
     const maxWidth = 128;
-    const lineHeight = 4;
+    const lineHeight = 10;
 
     const currentText = dialogueSystem.currentLines[dialogueSystem.currentLineIndex]
         .substring(0, dialogueSystem.currentCharIndex);
