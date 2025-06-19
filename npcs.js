@@ -13,9 +13,9 @@ export const NPCs = [
             { roomIndex: 0, x: 3, y: 3, collidable: false }
         ],
         dialogue: [
-            "Hello wanderer!",
-            "Press Z to talk to NPCs.",
-            "Try facing me and pressing Z!"
+            "HI GOOD MORNING YOU ARE IN HELL",
+            "I WANT LEMONS CAKE FRUIT CRACKERS BEEF TONGUE SWEAT",
+            "I'm overcome by desire..."
         ]
     },
     {
