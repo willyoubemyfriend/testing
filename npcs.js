@@ -26,7 +26,7 @@ export const NPCs = [
             { roomIndex: 1, x: 5, y: 5, collidable: true }
         ],
         dialogue: [
-            "I'm naked as fuck under here",
+            "I'm naked as FUCK under here man....",
             "Like I don't have shit on",
             "It's just my whole dick out"
         ]
