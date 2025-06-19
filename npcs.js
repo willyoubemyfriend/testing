@@ -30,7 +30,7 @@ export const NPCs = [
         dialogue: [
             "Did you see that?",
             "That space between this room and the next?",
-            "I mean, jeez...talk about bad architecture."
+            "I mean, jeez... talk about bad architecture."
         ]
     }
 ];
