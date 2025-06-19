@@ -15,7 +15,9 @@ export const NPCs = [
         dialogue: [
             "HI GOOD MORNING YOU ARE IN HELL",
             "I WANT LEMONS CAKE FRUIT CRACKERS BEEF TONGUE SWEAT",
-            "I'm overcome by desire..."
+            "WHEAT ICE SAUCE LIVER EYES SALT WEEDS",
+            "FINGER BREAST GOAT PEPPER TEARS VEINS NERVES",
+            "I'm overcome by desire... I want to die."
         ]
     },
     {
