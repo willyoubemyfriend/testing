@@ -48,7 +48,7 @@ export function updateInventoryPosition(inventory, gameState) {
 }
 
 // New optimized text wrapping function
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
     let currentY = y;
