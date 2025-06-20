@@ -88,9 +88,6 @@ export function drawDialogue(ctx, dialogueSystem, textboxImg) {
     const textY = 100;
     const maxWidth = 128;
     const lineHeight = 10;
-
-    const currentText = dialogueSystem.currentLines[dialogueSystem.currentLineIndex]
-        .substring(0, dialogueSystem.currentCharIndex);
     
     wrapText(ctx, currentText, textX, textY, maxWidth, lineHeight);
 
