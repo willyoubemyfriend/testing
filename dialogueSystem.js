@@ -114,9 +114,9 @@ export function drawDialogue(ctx, dialogueSystem, textboxImg) {
     // Render with typewriter effect
     const lines = dialogueSystem.preprocessedLines[dialogueSystem.currentLineIndex];
     const maxChars = dialogueSystem.currentCharIndex;
-    const lineHeight = 16;
+    const lineHeight = 10;
     let charsRemaining = maxChars;
-    let yPos = textboxY + 16;
+    let yPos = 100;
 
     for (const line of lines) {
         if (charsRemaining <= 0) break;
