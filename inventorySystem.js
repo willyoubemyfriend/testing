@@ -2,7 +2,7 @@
 export function createInventory() {
     return {
         visible: false,
-        y: 144,
+        y: 144, // start offscreen
         targetY: 144,
         page: 0,
         maxPages: 3,
@@ -13,8 +13,8 @@ export function createInventory() {
 
 export function toggleInventory(inventory, canvas, gameState) {
     if (inventory.transitioning) return;
-    inventory.transitioning = true;
 
+    inventory.transitioning = true;
     if (!inventory.visible) {
         gameState.mode = 'inventory';
         inventory.targetY = (canvas.height - 144) / 2;
@@ -37,7 +37,6 @@ export function updateInventoryPosition(inventory, gameState) {
     if (Math.abs(inventory.y - inventory.targetY) < inventory.transitionSpeed) {
         inventory.y = inventory.targetY;
         inventory.transitioning = false;
-
         if (!inventory.visible) {
             gameState.mode = 'overworld';
             gameState.canMove = true;
@@ -47,60 +46,39 @@ export function updateInventoryPosition(inventory, gameState) {
     }
 }
 
-// New optimized text wrapping function
-export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(' ');
-    let line = '';
-    let currentY = y;
-
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line ? `${line} ${words[n]}` : words[n];
-        const metrics = ctx.measureText(testLine);
-        
-        if (metrics.width > maxWidth && n > 0) {
-            ctx.fillText(line, x, currentY);
-            line = words[n];
-            currentY += lineHeight;
-        } else {
-            line = testLine;
-        }
-    }
-    ctx.fillText(line, x, currentY);
-}
-
 export function drawInventoryPage1(ctx, playerStats, playerImage) {
-    // Save original context state
+    // Draw the player portrait
+    ctx.drawImage(playerImage, 0, 0);
+
+    // Save original text state
     const originalTextAlign = ctx.textAlign;
     const originalTextBaseline = ctx.textBaseline;
     const originalFillStyle = ctx.fillStyle;
     const originalFont = ctx.font;
 
-    // Draw player portrait
-    ctx.drawImage(playerImage, 0, 0);
-
-    // Set inventory-specific text styles
+    // Text settings
     ctx.fillStyle = "white";
     ctx.font = '8px "Press Start 2P"';
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
 
-    // HP & Location
-    ctx.fillText(`HP:`, 16, 119);
+    // HP & Location under portrait
+    ctx.fillText(`HP: `, 16, 119);
     ctx.fillText(`${playerStats.name}`, 16, 108);
     ctx.font = '16px "friendfont"';
     ctx.fillText(`${playerStats.hp}/${playerStats.maxhp}`, 48, 118);
     ctx.fillText(`${playerStats.location}`, 16, 128);
 
-    // Description
-    ctx.font = '8px "Press Start 2P"';
+    // Description to the right
     wrapText(ctx, playerStats.description, 88, 24, 60, 10);
 
-    // Stats
+    // Stats under description
+    ctx.font = '8px "Press Start 2P"';
     ctx.fillText(`ATT: ${playerStats.attack}`, 88, 73);
     ctx.fillText(`DEF: ${playerStats.defense}`, 88, 85);
     ctx.fillText(`DRD: ${playerStats.dread}`, 88, 97);
 
-    // Restore original context
+    // Restore original text state
     ctx.textAlign = originalTextAlign;
     ctx.textBaseline = originalTextBaseline;
     ctx.fillStyle = originalFillStyle;
@@ -108,7 +86,7 @@ export function drawInventoryPage1(ctx, playerStats, playerImage) {
 }
 
 export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, enemyIcons, enemyStatusesImg, creatureGrid) {
-    // Save original context state
+    // Save original text state
     const originalTextAlign = ctx.textAlign;
     const originalTextBaseline = ctx.textBaseline;
     const originalFillStyle = ctx.fillStyle;
@@ -123,18 +101,19 @@ export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, 
         const y = 16 + row * 16;
 
         // Draw enemy icon
-        const spriteIndex = seenEnemies[i] ? i : 28;
+        let spriteIndex = seenEnemies[i] ? i : 28;
         ctx.drawImage(
             enemyIcons,
-            spriteIndex * 16, enemyFrame * 16,
+            spriteIndex * 16,
+            enemyFrame * 16,
             16, 16,
             x, y,
             16, 16
         );
 
         // Draw status icon
-        const status = enemyStatuses[i];
-        const statusIndex = status === "closure" ? 1 : status === "newlife" ? 2 : 0;
+        let status = enemyStatuses[i];
+        let statusIndex = status === "closure" ? 1 : status === "newlife" ? 2 : 0;
         ctx.drawImage(
             enemyStatusesImg,
             statusIndex * 16, 0,
@@ -144,9 +123,38 @@ export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, 
         );
     }
 
-    // Restore original context
+    // Restore original text state
     ctx.textAlign = originalTextAlign;
     ctx.textBaseline = originalTextBaseline;
     ctx.fillStyle = originalFillStyle;
     ctx.font = originalFont;
+}
+
+// Text wrapping helper (unchanged from original)
+export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const originalTextAlign = ctx.textAlign;
+    const originalTextBaseline = ctx.textBaseline;
+    
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    
+    const words = text.split(' ');
+    let line = '';
+    
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && n > 0) {
+            ctx.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line, x, y);
+    
+    ctx.textAlign = originalTextAlign;
+    ctx.textBaseline = originalTextBaseline;
 }
