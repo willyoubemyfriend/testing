@@ -120,21 +120,42 @@ export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, 
     }
 }
 
-export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+export function calculateLineBreaks(text, maxWidth) {
     const words = text.split(' ');
-    let line = '';
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
+    const lines = [];
+    let currentLine = '';
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.font = '16px "friendfont"'; 
+    
+    words.forEach(word => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
         const metrics = ctx.measureText(testLine);
-        const testWidth = metrics.width;
-
-        if (testWidth > maxWidth && n > 0) {
-            ctx.fillText(line, x, y);
-            line = words[n] + ' ';
-            y += lineHeight;
+        
+        if (metrics.width > maxWidth && currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
         } else {
-            line = testLine;
+            currentLine = testLine;
         }
-    }
-    ctx.fillText(line, x, y);
+    });
+    
+    if (currentLine) lines.push(currentLine);
+    return lines;
 }
+
+export function wrapText(ctx, text, x, y, maxWidth, lineHeight, currentCharCount) {
+    const lines = calculateLineBreaks(text, maxWidth);
+    let charsRemaining = currentCharCount;
+    let currentY = y;
+    
+    for (const line of lines) {
+        if (charsRemaining <= 0) break;
+        
+        const displayChars = Math.min(charsRemaining, line.length);
+        ctx.fillText(line.substring(0, displayChars), x, currentY);
+        
+        currentY += lineHeight;
+        charsRemaining -= line.length + 1; // +1 for the space
+    }
+}
+
