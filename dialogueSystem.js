@@ -1,5 +1,7 @@
 // dialogueSystem.js
 import { wrapText } from './inventorySystem.js';
+import { calculateLineBreaks } from './inventorySystem.js';
+
 
 export const textboxImg = new Image();
 textboxImg.src = 'assets/textbox.png';
@@ -91,6 +93,25 @@ export function drawDialogue(ctx, dialogueSystem, textboxImg) {
         .substring(0, dialogueSystem.currentCharIndex);
     
     wrapText(ctx, currentText, textX, textY, maxWidth, lineHeight);
+
+    const currentText = dialogueSystem.currentLines[dialogueSystem.currentLineIndex];
+    const lines = calculateLineBreaks(currentText, maxWidth);
+    const totalChars = currentText.length;
+    const visibleChars = dialogueSystem.currentCharIndex;
+    
+    let charsRemaining = visibleChars;
+    let currentY = textY;
+    
+    for (const line of lines) {
+        if (charsRemaining <= 0) break;
+        
+        const lineChars = Math.min(charsRemaining, line.length);
+        ctx.fillText(line.substring(0, lineChars), textX, currentY);
+        
+        currentY += lineHeight;
+        charsRemaining -= line.length;
+        if (charsRemaining > 0) charsRemaining--; // Account for spaces
+    }
 
     // Restore original context state
     ctx.textAlign = originalTextAlign;
