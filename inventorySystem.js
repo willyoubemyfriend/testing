@@ -1,7 +1,8 @@
+// inventorySystem.js
 export function createInventory() {
     return {
         visible: false,
-        y: 144, // start offscreen
+        y: 144,
         targetY: 144,
         page: 0,
         maxPages: 3,
@@ -12,7 +13,6 @@ export function createInventory() {
 
 export function toggleInventory(inventory, canvas, gameState) {
     if (inventory.transitioning) return;
-
     inventory.transitioning = true;
 
     if (!inventory.visible) {
@@ -47,69 +47,94 @@ export function updateInventoryPosition(inventory, gameState) {
     }
 }
 
+// New optimized text wrapping function
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line ? `${line} ${words[n]}` : words[n];
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && n > 0) {
+            ctx.fillText(line, x, currentY);
+            line = words[n];
+            currentY += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line, x, currentY);
+}
+
 export function drawInventoryPage1(ctx, playerStats, playerImage) {
+    // Save original context state
     const originalTextAlign = ctx.textAlign;
     const originalTextBaseline = ctx.textBaseline;
     const originalFillStyle = ctx.fillStyle;
     const originalFont = ctx.font;
-    // Draw the player portrait
+
+    // Draw player portrait
     ctx.drawImage(playerImage, 0, 0);
 
-    // Text settings
+    // Set inventory-specific text styles
     ctx.fillStyle = "white";
     ctx.font = '8px "Press Start 2P"';
+    ctx.textBaseline = "top";
+    ctx.textAlign = "left";
 
-    // HP & Location under portrait
-    ctx.fillText(`HP: `, 16, 119);
+    // HP & Location
+    ctx.fillText(`HP:`, 16, 119);
     ctx.fillText(`${playerStats.name}`, 16, 108);
     ctx.font = '16px "friendfont"';
     ctx.fillText(`${playerStats.hp}/${playerStats.maxhp}`, 48, 118);
     ctx.fillText(`${playerStats.location}`, 16, 128);
 
-    // Description to the right
+    // Description
+    ctx.font = '8px "Press Start 2P"';
     wrapText(ctx, playerStats.description, 88, 24, 60, 10);
 
-    // Stats under description
-    ctx.font = '8px "Press Start 2P"';
+    // Stats
     ctx.fillText(`ATT: ${playerStats.attack}`, 88, 73);
     ctx.fillText(`DEF: ${playerStats.defense}`, 88, 85);
     ctx.fillText(`DRD: ${playerStats.dread}`, 88, 97);
-   
+
+    // Restore original context
     ctx.textAlign = originalTextAlign;
     ctx.textBaseline = originalTextBaseline;
     ctx.fillStyle = originalFillStyle;
     ctx.font = originalFont;
-
 }
 
 export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, enemyIcons, enemyStatusesImg, creatureGrid) {
+    // Save original context state
+    const originalTextAlign = ctx.textAlign;
+    const originalTextBaseline = ctx.textBaseline;
+    const originalFillStyle = ctx.fillStyle;
+    const originalFont = ctx.font;
+
     ctx.drawImage(creatureGrid, 0, 0);
 
     for (let i = 0; i < 28; i++) {
         const row = i % 7;
         const col = Math.floor(i / 7);
-
         const x = 16 + col * 32;
         const y = 16 + row * 16;
 
         // Draw enemy icon
-        let spriteIndex = seenEnemies[i] ? i : 28; // 0–27 = enemy, 28 = ?
+        const spriteIndex = seenEnemies[i] ? i : 28;
         ctx.drawImage(
             enemyIcons,
-            spriteIndex * 16,
-            enemyFrame * 16,
+            spriteIndex * 16, enemyFrame * 16,
             16, 16,
             x, y,
             16, 16
         );
 
-        // Determine status icon index
-        let status = enemyStatuses[i];
-        let statusIndex = 0;
-        if (status === "closure") statusIndex = 1;
-        else if (status === "newlife") statusIndex = 2;
-
-        // Draw status icon to the right of the enemy icon
+        // Draw status icon
+        const status = enemyStatuses[i];
+        const statusIndex = status === "closure" ? 1 : status === "newlife" ? 2 : 0;
         ctx.drawImage(
             enemyStatusesImg,
             statusIndex * 16, 0,
@@ -118,23 +143,10 @@ export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, 
             16, 16
         );
     }
-}
 
-export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(' ');
-    let line = '';
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const metrics = ctx.measureText(testLine);
-        const testWidth = metrics.width;
-
-        if (testWidth > maxWidth && n > 0) {
-            ctx.fillText(line, x, y);
-            line = words[n] + ' ';
-            y += lineHeight;
-        } else {
-            line = testLine;
-        }
-    }
-    ctx.fillText(line, x, y);
+    // Restore original context
+    ctx.textAlign = originalTextAlign;
+    ctx.textBaseline = originalTextBaseline;
+    ctx.fillStyle = originalFillStyle;
+    ctx.font = originalFont;
 }
