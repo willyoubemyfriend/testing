@@ -1,4 +1,3 @@
-// inventorySystem.js
 export function createInventory() {
     return {
         visible: false,
@@ -15,6 +14,7 @@ export function toggleInventory(inventory, canvas, gameState) {
     if (inventory.transitioning) return;
 
     inventory.transitioning = true;
+
     if (!inventory.visible) {
         gameState.mode = 'inventory';
         inventory.targetY = (canvas.height - 144) / 2;
@@ -37,6 +37,7 @@ export function updateInventoryPosition(inventory, gameState) {
     if (Math.abs(inventory.y - inventory.targetY) < inventory.transitionSpeed) {
         inventory.y = inventory.targetY;
         inventory.transitioning = false;
+
         if (!inventory.visible) {
             gameState.mode = 'overworld';
             gameState.canMove = true;
@@ -47,20 +48,16 @@ export function updateInventoryPosition(inventory, gameState) {
 }
 
 export function drawInventoryPage1(ctx, playerStats, playerImage) {
-    // Draw the player portrait
-    ctx.drawImage(playerImage, 0, 0);
-
-    // Save original text state
     const originalTextAlign = ctx.textAlign;
     const originalTextBaseline = ctx.textBaseline;
     const originalFillStyle = ctx.fillStyle;
     const originalFont = ctx.font;
+    // Draw the player portrait
+    ctx.drawImage(playerImage, 0, 0);
 
     // Text settings
     ctx.fillStyle = "white";
     ctx.font = '8px "Press Start 2P"';
-    ctx.textBaseline = "top";
-    ctx.textAlign = "left";
 
     // HP & Location under portrait
     ctx.fillText(`HP: `, 16, 119);
@@ -77,31 +74,26 @@ export function drawInventoryPage1(ctx, playerStats, playerImage) {
     ctx.fillText(`ATT: ${playerStats.attack}`, 88, 73);
     ctx.fillText(`DEF: ${playerStats.defense}`, 88, 85);
     ctx.fillText(`DRD: ${playerStats.dread}`, 88, 97);
-
-    // Restore original text state
+   
     ctx.textAlign = originalTextAlign;
     ctx.textBaseline = originalTextBaseline;
     ctx.fillStyle = originalFillStyle;
     ctx.font = originalFont;
+
 }
 
 export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, enemyIcons, enemyStatusesImg, creatureGrid) {
-    // Save original text state
-    const originalTextAlign = ctx.textAlign;
-    const originalTextBaseline = ctx.textBaseline;
-    const originalFillStyle = ctx.fillStyle;
-    const originalFont = ctx.font;
-
     ctx.drawImage(creatureGrid, 0, 0);
 
     for (let i = 0; i < 28; i++) {
         const row = i % 7;
         const col = Math.floor(i / 7);
+
         const x = 16 + col * 32;
         const y = 16 + row * 16;
 
         // Draw enemy icon
-        let spriteIndex = seenEnemies[i] ? i : 28;
+        let spriteIndex = seenEnemies[i] ? i : 28; // 0–27 = enemy, 28 = ?
         ctx.drawImage(
             enemyIcons,
             spriteIndex * 16,
@@ -111,9 +103,13 @@ export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, 
             16, 16
         );
 
-        // Draw status icon
+        // Determine status icon index
         let status = enemyStatuses[i];
-        let statusIndex = status === "closure" ? 1 : status === "newlife" ? 2 : 0;
+        let statusIndex = 0;
+        if (status === "closure") statusIndex = 1;
+        else if (status === "newlife") statusIndex = 2;
+
+        // Draw status icon to the right of the enemy icon
         ctx.drawImage(
             enemyStatusesImg,
             statusIndex * 16, 0,
@@ -122,30 +118,17 @@ export function drawInventoryPage3(ctx, seenEnemies, enemyStatuses, enemyFrame, 
             16, 16
         );
     }
-
-    // Restore original text state
-    ctx.textAlign = originalTextAlign;
-    ctx.textBaseline = originalTextBaseline;
-    ctx.fillStyle = originalFillStyle;
-    ctx.font = originalFont;
 }
 
-// Text wrapping helper (unchanged from original)
 export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const originalTextAlign = ctx.textAlign;
-    const originalTextBaseline = ctx.textBaseline;
-    
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    
     const words = text.split(' ');
     let line = '';
-    
     for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const metrics = ctx.measureText(testLine);
-        
-        if (metrics.width > maxWidth && n > 0) {
+        const testWidth = metrics.width;
+
+        if (testWidth > maxWidth && n > 0) {
             ctx.fillText(line, x, y);
             line = words[n] + ' ';
             y += lineHeight;
@@ -154,7 +137,4 @@ export function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
         }
     }
     ctx.fillText(line, x, y);
-    
-    ctx.textAlign = originalTextAlign;
-    ctx.textBaseline = originalTextBaseline;
 }
