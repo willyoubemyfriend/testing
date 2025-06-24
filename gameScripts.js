@@ -1,18 +1,13 @@
 export const GAME_EVENTS = {
-    EVENT_0: {
-        description: "Intro cutscene - NPC greets player and moves them",
+    TEST_EVENT: {
+        description: "Test dialogue event",
         subEvents: [
             {
                 type: "DIALOGUE",
-                lines: ["Welcome to the dungeon!", "Follow me..."],
-                isBlocking: true // Pauses other sub-events until done
-            },
-            {
-                type: "MOVE_PLAYER",
-                targetX: 5,
-                targetY: 3,
-                speed: 2,
-                isBlocking: true
+                lines: ["This is a test event!", "It works!"],
+                isBlocking: true,
+                isStarted: false,
+                isComplete: false
             }
         ]
     }
