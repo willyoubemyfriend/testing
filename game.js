@@ -54,7 +54,7 @@ ctx.imageSmoothingEnabled = false;
 
 // Initialize game state
 let player = createPlayer();
-const dialogueSystem = createDialogueSystem();
+let dialogueSystem = createDialogueSystem();
 const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
 const enemyStatuses = Array(28).fill("newlife");
@@ -85,7 +85,6 @@ let roomTransition = {
     roomGap: 0
 };
 
-let dialogueSystem = createDialogueSystem();
 
 let eventSystem = createEventSystem();
 
