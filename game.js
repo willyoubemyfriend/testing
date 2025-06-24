@@ -84,6 +84,8 @@ let roomTransition = {
 
 let dialogueSystem = createDialogueSystem();
 
+let eventSystem = createEventSystem();
+
 // Input handling
 const keys = {};
 window.addEventListener("keydown", (e) => {
