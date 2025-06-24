@@ -60,7 +60,9 @@ const enemyStatuses = Array(28).fill("newlife");
 let currentRoomIndex = 0;
 let gameState = {
     mode: 'overworld',
-    canMove: true
+    canMove: true,
+    dialogueSystem: dialogueSystem,
+    player: player
 };
 
 let enemyAnimTimer = 0;
