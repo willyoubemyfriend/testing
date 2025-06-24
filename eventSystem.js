@@ -34,7 +34,11 @@ export function updateEventSystem(eventSystem, gameState, deltaTime) {
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.DIALOGUE:
-            // Will implement later
+            if (!subEvent.isStarted) {
+                startDialogue(gameState.dialogueSystem, subEvent.lines);
+                subEvent.isStarted = true;
+            }
+            subEvent.isComplete = (gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE);
             break;
         case SUBEVENT_TYPES.MOVE_PLAYER:
             // Will implement later
