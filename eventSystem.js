@@ -26,7 +26,7 @@ export function updateEventSystem(eventSystem, gameState) {
     }
 }
 
-function processSubEvent(subEvent, gameState) {
+export function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
         case "DIALOGUE":
             if (!subEvent.isStarted) {
