@@ -96,6 +96,16 @@ window.addEventListener("keyup", (e) => {
     keys[e.key] = false;
 });
 
+function triggerEvent(eventId) {
+    if (!GAME_EVENTS[eventId]) {
+        console.error("Event not found:", eventId);
+        return;
+    }
+    eventSystem.activeEvent = JSON.parse(JSON.stringify(GAME_EVENTS[eventId])); // Deep copy
+    eventSystem.currentSubEventIndex = 0;
+    eventSystem.isProcessing = true;
+}
+
 function handleKeyPress(key) {
     // Dialogue advancement
     if (dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
@@ -132,18 +142,9 @@ function handleKeyPress(key) {
         if (key === ".") changeInventoryPage(inventory, 1);
         if (key === ",") changeInventoryPage(inventory, -1);
     }
+    
+    if (key === "t") triggerEvent("TEST_EVENT"); 
 }
-
-function triggerEvent(eventId) {
-    if (!GAME_EVENTS[eventId]) {
-        console.error("Event not found:", eventId);
-        return;
-    }
-    eventSystem.activeEvent = JSON.parse(JSON.stringify(GAME_EVENTS[eventId])); // Deep copy
-    eventSystem.currentSubEventIndex = 0;
-    eventSystem.isProcessing = true;
-}
-
 
 function canMoveInCurrentRoom(x, y) {
     // Check room tiles first
