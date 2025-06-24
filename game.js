@@ -39,8 +39,12 @@ import {
 } from './dialogueSystem.js';
 
 import { 
-    updateEventSystem
+    createEventSystem, 
+    updateEventSystem,
+    SUBEVENT_TYPES 
 } from './eventSystem.js';
+
+import { GAME_EVENTS } from './gameScripts.js';
 
 import { assets, loadAssets } from './assetLoader.js';
 
@@ -128,13 +132,16 @@ function handleKeyPress(key) {
     }
 }
 
-function triggerEvent(eventSystem, eventId) {
-    eventSystem.activeEvent = GAME_EVENTS[eventId];
+function triggerEvent(eventId) {
+    if (!GAME_EVENTS[eventId]) {
+        console.error("Event not found:", eventId);
+        return;
+    }
+    eventSystem.activeEvent = JSON.parse(JSON.stringify(GAME_EVENTS[eventId])); // Deep copy
     eventSystem.currentSubEventIndex = 0;
     eventSystem.isProcessing = true;
 }
 
-eventSystem.isProcessing = false 
 
 function canMoveInCurrentRoom(x, y) {
     // Check room tiles first
