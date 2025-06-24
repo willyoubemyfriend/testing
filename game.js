@@ -53,6 +53,8 @@ const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
 // Initialize game state
+const player = createPlayer();
+const dialogueSystem = createDialogueSystem();
 const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
 const enemyStatuses = Array(28).fill("newlife");
