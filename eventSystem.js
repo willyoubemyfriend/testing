@@ -95,9 +95,11 @@ function processSubEvent(subEvent, gameState) {
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.DIALOGUE:
-            return gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE;
+            // Safely check dialogue completion
+            return gameState.dialogueSystem?.state === DIALOGUE_STATE.INACTIVE;
         case SUBEVENT_TYPES.MOVE_PLAYER:
-            return !gameState.player.moving;
+            // Safely check movement completion
+            return !gameState.player?.moving;
         default:
             return true;
     }
