@@ -38,6 +38,10 @@ import {
     DIALOGUE_STATE
 } from './dialogueSystem.js';
 
+import { 
+    updateEventSystem
+} from './eventSystem.js';
+
 import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
