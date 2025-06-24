@@ -1,49 +1,43 @@
-// Event Types (will expand later)
-export const SUBEVENT_TYPES = {
-    DIALOGUE: "DIALOGUE",
-    MOVE_PLAYER: "MOVE_PLAYER",
-    CHANGE_ROOM: "CHANGE_ROOM"
-};
-
-// Event System State
 export function createEventSystem() {
     return {
         activeEvent: null,
         currentSubEventIndex: 0,
-        isProcessing: false
+        isProcessing: false,
+        deltaTime: 0
     };
 }
 
-// Process Sub-Events
-export function updateEventSystem(eventSystem, gameState, deltaTime) {
+export function updateEventSystem(eventSystem, gameState) {
     if (!eventSystem.isProcessing || !eventSystem.activeEvent) return;
 
     const currentSubEvent = eventSystem.activeEvent.subEvents[eventSystem.currentSubEventIndex];
-    processSubEvent(currentSubEvent, gameState); // Handle the sub-event
+    if (!currentSubEvent.isStarted) {
+        currentSubEvent.isStarted = true;
+        currentSubEvent.isComplete = false;
+    }
 
-    // Move to next sub-event when current completes
+    processSubEvent(currentSubEvent, gameState);
+
     if (currentSubEvent.isComplete) {
         eventSystem.currentSubEventIndex++;
         if (eventSystem.currentSubEventIndex >= eventSystem.activeEvent.subEvents.length) {
-            eventSystem.isProcessing = false; // Event finished
+            eventSystem.isProcessing = false;
         }
     }
 }
 
-// Sub-Event Processor (placeholder)
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
-        case SUBEVENT_TYPES.DIALOGUE:
+        case "DIALOGUE":
             if (!subEvent.isStarted) {
-                startDialogue(gameState.dialogueSystem, subEvent.lines);
+                gameState.dialogueSystem.currentLines = subEvent.lines;
+                startDialogue(gameState.dialogueSystem);
                 subEvent.isStarted = true;
             }
             subEvent.isComplete = (gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE);
             break;
-        case SUBEVENT_TYPES.MOVE_PLAYER:
-            // Will implement later
-            break;
         default:
-            console.warn("Unknown sub-event type:", subEvent.type);
+            console.warn("Unhandled sub-event type:", subEvent.type);
+            subEvent.isComplete = true; // Skip unimplemented events
     }
 }
