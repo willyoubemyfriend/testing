@@ -53,7 +53,7 @@ const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
 // Initialize game state
-const player = createPlayer();
+let player = createPlayer();
 const dialogueSystem = createDialogueSystem();
 const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
@@ -71,7 +71,6 @@ let enemyAnimTimer = 0;
 let enemyAnimFrame = 0;
 const enemyAnimInterval = 250;
 
-let player = createPlayer();
 let inventory = createInventory();
 
 let roomTransition = {
