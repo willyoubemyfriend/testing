@@ -124,6 +124,12 @@ function handleKeyPress(key) {
     }
 }
 
+function triggerEvent(eventSystem, eventId) {
+    eventSystem.activeEvent = GAME_EVENTS[eventId];
+    eventSystem.currentSubEventIndex = 0;
+    eventSystem.isProcessing = true;
+}
+
 function canMoveInCurrentRoom(x, y) {
     // Check room tiles first
     if (canMove(rooms[currentRoomIndex], x, y)) {
@@ -136,6 +142,11 @@ function canMoveInCurrentRoom(x, y) {
 }
 
 function update() {
+    // Event processing 
+    if (eventSystem.isProcessing) {
+        updateEventSystem(eventSystem, gameState, deltaTime);
+        return; // Pause other updates during events
+    }
     // Dialogue updates
     if (dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
         updateDialogue(dialogueSystem);
