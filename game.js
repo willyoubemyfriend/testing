@@ -134,6 +134,8 @@ function triggerEvent(eventSystem, eventId) {
     eventSystem.isProcessing = true;
 }
 
+let eventSystem.isProcessing = false 
+
 function canMoveInCurrentRoom(x, y) {
     // Check room tiles first
     if (canMove(rooms[currentRoomIndex], x, y)) {
