@@ -160,7 +160,7 @@ function canMoveInCurrentRoom(x, y) {
 function update() {
     // Event processing 
     if (eventSystem.isProcessing) {
-        updateEventSystem(eventSystem, gameState, deltaTime);
+        updateEventSystem(eventSystem, gameState);
         return; // Pause other updates during events
     }
     // Dialogue updates
