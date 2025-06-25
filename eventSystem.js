@@ -1,10 +1,8 @@
-// eventSystem.js
 import {
     startDialogue,
     DIALOGUE_STATE
 } from './dialogueSystem.js';
 
-// Event Types and Execution Modes
 export const SUBEVENT_TYPES = {
     DIALOGUE: "DIALOGUE",
     MOVE_PLAYER: "MOVE_PLAYER",
@@ -16,53 +14,61 @@ export const EXECUTION_MODES = {
     PARALLEL: "PARALLEL"
 };
 
-// Core System
 export function createEventSystem() {
     return {
         activeEvent: null,
         currentSubEventIndex: 0,
         isProcessing: false,
-        parallelCompletion: {} // Tracks parallel sub-event completion
+        parallelCompletion: {}
     };
 }
 
-// Main Update Loop
 export function updateEventSystem(eventSystem, gameState) {
     if (!eventSystem.isProcessing || !eventSystem.activeEvent) return;
 
     const event = eventSystem.activeEvent;
     let allComplete = true;
 
-    // Process current sequential OR all parallel events
+    // Process all parallel events first
     event.subEvents.forEach((subEvent, index) => {
-        const isCurrent = index === eventSystem.currentSubEventIndex;
-        const isParallel = subEvent.executionMode === EXECUTION_MODES.PARALLEL;
-        
-        if (isParallel || isCurrent) {
-            // Start if not started
+        if (subEvent.executionMode === EXECUTION_MODES.PARALLEL) {
             if (!subEvent.isStarted) {
                 subEvent.isStarted = true;
                 processSubEvent(subEvent, gameState);
             }
-
-            // Check completion
-            subEvent.isComplete = checkSubEventCompletion(subEvent, gameState);
             
+            subEvent.isComplete = checkSubEventCompletion(subEvent, gameState);
             if (!subEvent.isComplete) {
                 allComplete = false;
-            } else if (isCurrent) {
-                // Only advance index for sequential events
-                eventSystem.currentSubEventIndex++;
             }
         }
     });
 
-    if (allComplete) {
+    // Then process current sequential event
+    const currentSubEvent = event.subEvents[eventSystem.currentSubEventIndex];
+    if (currentSubEvent && currentSubEvent.executionMode === EXECUTION_MODES.SEQUENTIAL) {
+        if (!currentSubEvent.isStarted) {
+            currentSubEvent.isStarted = true;
+            processSubEvent(currentSubEvent, gameState);
+        }
+        
+        currentSubEvent.isComplete = checkSubEventCompletion(currentSubEvent, gameState);
+        if (!currentSubEvent.isComplete) {
+            allComplete = false;
+        } else {
+            // Only move to next event if current sequential is complete
+            eventSystem.currentSubEventIndex++;
+        }
+    }
+
+    // Check if all events are complete
+    if (eventSystem.currentSubEventIndex >= event.subEvents.length) {
         eventSystem.isProcessing = false;
+        eventSystem.activeEvent = null;
+        eventSystem.currentSubEventIndex = 0;
     }
 }
 
-// Enhanced processSubEvent
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.DIALOGUE:
@@ -78,7 +84,6 @@ function processSubEvent(subEvent, gameState) {
     }
 }
 
-// Enhanced completion check
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.DIALOGUE:
