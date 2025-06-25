@@ -1,0 +1,11 @@
+// eventTypes.js
+export const SUBEVENT_TYPES = {
+    NPC_DIALOGUE: "NPC_DIALOGUE",
+    MOVE_PLAYER: "MOVE_PLAYER",
+    CHANGE_ROOM: "CHANGE_ROOM"
+};
+
+export const EXECUTION_MODES = {
+    SEQUENTIAL: "SEQUENTIAL",
+    PARALLEL: "PARALLEL"
+};
