@@ -30,76 +30,61 @@ export function createEventSystem() {
 export function updateEventSystem(eventSystem, gameState) {
     if (!eventSystem.isProcessing || !eventSystem.activeEvent) return;
 
-    const currentEvent = eventSystem.activeEvent;
+    const event = eventSystem.activeEvent;
     let allComplete = true;
 
-    // Process all relevant sub-events
-    currentEvent.subEvents.forEach((subEvent, index) => {
-        // Only process if:
-        // - Parallel mode, OR
-        // - Sequential and it's the current index
-        const shouldProcess = subEvent.executionMode === EXECUTION_MODES.PARALLEL || 
-                            index === eventSystem.currentSubEventIndex;
-
-        if (!shouldProcess) return;
-
-        // Start if not started
-        if (!subEvent.isStarted) {
-            subEvent.isStarted = true;
-            processSubEvent(subEvent, gameState);
-        }
-
-        // Check completion
-        subEvent.isComplete = checkSubEventCompletion(subEvent, gameState);
+    // Process current sequential OR all parallel events
+    event.subEvents.forEach((subEvent, index) => {
+        const isCurrent = index === eventSystem.currentSubEventIndex;
+        const isParallel = subEvent.executionMode === EXECUTION_MODES.PARALLEL;
         
-        // Track overall completion
-        if (!subEvent.isComplete) allComplete = false;
+        if (isParallel || isCurrent) {
+            // Start if not started
+            if (!subEvent.isStarted) {
+                subEvent.isStarted = true;
+                processSubEvent(subEvent, gameState);
+            }
+
+            // Check completion
+            subEvent.isComplete = checkSubEventCompletion(subEvent, gameState);
+            
+            if (!subEvent.isComplete) {
+                allComplete = false;
+            } else if (isCurrent) {
+                // Only advance index for sequential events
+                eventSystem.currentSubEventIndex++;
+            }
+        }
     });
 
-    // Only advance sequential index if current sequential event is complete
-    const currentSubEvent = currentEvent.subEvents[eventSystem.currentSubEventIndex];
-    if (currentSubEvent?.executionMode === EXECUTION_MODES.SEQUENTIAL && 
-        currentSubEvent.isComplete) {
-        eventSystem.currentSubEventIndex++;
-    }
-
-    // End event if all complete
     if (allComplete) {
         eventSystem.isProcessing = false;
     }
 }
 
-// Sub-Event Processing
+// Enhanced processSubEvent
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.DIALOGUE:
-            if (!gameState.dialogueSystem) {
-                console.error("Missing dialogue system");
-                subEvent.isComplete = true;
-                return;
-            }
-            startDialogue(gameState.dialogueSystem, subEvent.lines);
+            gameState.dialogueSystem.currentLines = subEvent.lines;
+            startDialogue(gameState.dialogueSystem);
             break;
-
+            
         case SUBEVENT_TYPES.MOVE_PLAYER:
             gameState.player.moving = true;
             gameState.player.x = subEvent.targetX;
             gameState.player.y = subEvent.targetY;
             break;
-
-        default:
-            console.warn("Unhandled sub-event type:", subEvent.type);
-            subEvent.isComplete = true;
     }
 }
 
-// Completion Checking
+// Enhanced completion check
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.DIALOGUE:
-            return gameState.dialogueSystem?.state === DIALOGUE_STATE.INACTIVE;
+            return gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE;
         case SUBEVENT_TYPES.MOVE_PLAYER:
-            return !gameState.player?.moving;
+            return !gameState.player.moving;
         default:
             return true;
     }
