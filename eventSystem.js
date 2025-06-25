@@ -2,6 +2,7 @@ import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventTypes.js';
 import { startDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { EVENT_DIALOGUE } from './gameScripts.js';
 
+
 export function createEventSystem() {
     return {
         activeEvent: null,
@@ -60,6 +61,7 @@ export function updateEventSystem(eventSystem, gameState) {
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.NPC_DIALOGUE:
+            // Use the event dialogue instead of direct lines
             const dialogueLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
             startDialogue(gameState.dialogueSystem, dialogueLines);
             break;
@@ -74,15 +76,11 @@ function processSubEvent(subEvent, gameState) {
 
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
-        case SUBEVENT_TYPES.NPC_DIALOGUE:
-            // THE CRUCIAL FIX: Only complete when dialogue is fully finished
-            return gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE &&
-                   gameState.dialogueSystem.currentLineIndex >= 
-                   gameState.dialogueSystem.currentLines.length - 1;
+        case SUBEVENT_TYPES.DIALOGUE:
+            return gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE;
         case SUBEVENT_TYPES.MOVE_PLAYER:
             return !gameState.player.moving;
         default:
             return true;
     }
 }
-
