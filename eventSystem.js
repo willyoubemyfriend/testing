@@ -73,16 +73,13 @@ export function updateEventSystem(eventSystem, gameState) {
 
 function processSubEvent(subEvent, gameState, eventSystem) {
     switch (subEvent.type) {
-        case SUBEVENT_TYPES.NPC_DIALOGUE:
-            gameState.dialogueSystem.state = DIALOGUE_STATE.TYPING;
-            gameState.dialogueSystem.currentLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
-            gameState.dialogueSystem.currentLineIndex = 0;
-            gameState.dialogueSystem.currentCharIndex = 0;
-            gameState.dialogueSystem.timer = 0;
-            gameState.dialogueSystem.preprocessedLines = [];
+        case SUBEVENT_TYPES.NPC_DIALOGUE: {
+            const lines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
+            startDialogue(gameState.dialogueSystem, lines);
             gameState.canMove = subEvent.executionMode === EXECUTION_MODES.PARALLEL;
             break;
-            
+        }
+
         case SUBEVENT_TYPES.MOVE_PLAYER:
             gameState.player.moving = true;
             gameState.player.x = subEvent.targetX;
@@ -93,10 +90,11 @@ function processSubEvent(subEvent, gameState, eventSystem) {
     }
 }
 
+
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.NPC_DIALOGUE:
-            return false;
+            return true; // Completion handled by waitingForDialogue check
         case SUBEVENT_TYPES.MOVE_PLAYER:
             return !gameState.player.moving;
         default:
