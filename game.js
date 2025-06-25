@@ -40,9 +40,13 @@ import {
 
 import { 
     createEventSystem, 
-    updateEventSystem,
-    SUBEVENT_TYPES 
+    updateEventSystem 
 } from './eventSystem.js';
+
+import { 
+    SUBEVENT_TYPES 
+} from './eventTypes.js';
+
 
 import { GAME_EVENTS } from './gameScripts.js';
 
