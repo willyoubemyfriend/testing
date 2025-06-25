@@ -8,6 +8,9 @@ export const EVENT_DIALOGUE = {
     ],
     "-2": [
         "Watch me move and talk at the same time!"
+    ],
+    "-3": [
+        "But do it really tho?"
     ]
 };
 
@@ -19,7 +22,8 @@ export const GAME_EVENTS = {
                 type: SUBEVENT_TYPES.NPC_DIALOGUE,
                 npcId: -1,
                 executionMode: EXECUTION_MODES.SEQUENTIAL
-            }
+            },
+            
         ]
     },
     PARALLEL_DEMO: {
