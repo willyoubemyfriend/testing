@@ -145,7 +145,7 @@ function handleKeyPress(key) {
         if (key === ",") changeInventoryPage(inventory, -1);
     }
     
-    if (key === "t") triggerEvent("TEST_EVENT"); 
+    if (key === "t") triggerEvent("PARALLEL_DEMO"); 
 }
 
 function canMoveInCurrentRoom(x, y) {
