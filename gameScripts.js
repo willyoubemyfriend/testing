@@ -11,6 +11,13 @@ export const GAME_EVENTS = {
                 executionMode: EXECUTION_MODES.SEQUENTIAL,
                 isStarted: false,
                 isComplete: false
+            },
+            {
+                type: SUBEVENT_TYPES.DIALOGUE,
+                lines: ["This is testing two dialogues in sequence."],
+                executionMode:EXECUTION_MODES.SEQUENTIAL,
+                isStarted: false,
+                isComplete: false
             }
         ]
     },
