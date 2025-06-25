@@ -1,19 +1,6 @@
-import {
-    startDialogue,
-    DIALOGUE_STATE
-} from './dialogueSystem.js';
+import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventTypes.js';
+import { startDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { EVENT_DIALOGUE } from './gameScripts.js';
-
-export const SUBEVENT_TYPES = {
-    NPC_DIALOGUE: "NPC_DIALOGUE", // Changed from DIALOGUE to NPC_DIALOGUE
-    MOVE_PLAYER: "MOVE_PLAYER",
-    CHANGE_ROOM: "CHANGE_ROOM"
-};
-
-export const EXECUTION_MODES = {
-    SEQUENTIAL: "SEQUENTIAL",
-    PARALLEL: "PARALLEL"
-};
 
 export function createEventSystem() {
     return {
