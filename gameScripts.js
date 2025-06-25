@@ -1,5 +1,15 @@
 // gameScripts.js
-import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventSystem.js';
+import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventTypes.js';
+
+export const EVENT_DIALOGUE = {
+    "-1": [
+        "This is a test event!", 
+        "It works!"
+    ],
+    "-2": [
+        "Watch me move and talk at the same time!"
+    ]
+};
 
 export const GAME_EVENTS = {
     TEST_EVENT: {
@@ -7,18 +17,17 @@ export const GAME_EVENTS = {
         subEvents: [
             {
                 type: SUBEVENT_TYPES.NPC_DIALOGUE,
-                npcId: -1, // Special ID for event-triggered dialogue
+                npcId: -1,
                 executionMode: EXECUTION_MODES.SEQUENTIAL
             }
         ]
     },
-
     PARALLEL_DEMO: {
         description: "NPC talks while moving",
         subEvents: [
             {
                 type: SUBEVENT_TYPES.NPC_DIALOGUE,
-                npcId: -2, // Another special ID
+                npcId: -2,
                 executionMode: EXECUTION_MODES.PARALLEL
             },
             {
@@ -30,15 +39,4 @@ export const GAME_EVENTS = {
             }
         ]
     }
-};
-
-// Event-specific dialogue (using same format as NPCs)
-export const EVENT_DIALOGUE = {
-    "-1": [ // Matches npcId in TEST_EVENT
-        "This is a test event!", 
-        "It works!"
-    ],
-    "-2": [ // Matches npcId in PARALLEL_DEMO
-        "Watch me move and talk at the same time!"
-    ]
 };
