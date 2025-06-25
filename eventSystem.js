@@ -2,6 +2,7 @@ import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventTypes.js';
 import { startDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { EVENT_DIALOGUE } from './gameScripts.js';
 
+
 export function createEventSystem() {
     return {
         activeEvent: null,
