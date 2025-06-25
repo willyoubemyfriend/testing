@@ -2,28 +2,38 @@ import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventTypes.js';
 import { startDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { EVENT_DIALOGUE } from './gameScripts.js';
 
-
 export function createEventSystem() {
     return {
         activeEvent: null,
         currentSubEventIndex: 0,
         isProcessing: false,
-        parallelCompletion: {}
+        parallelCompletion: {},
+        waitingForDialogue: false // New flag for dialogue handling
     };
 }
 
 export function updateEventSystem(eventSystem, gameState) {
     if (!eventSystem.isProcessing || !eventSystem.activeEvent) return;
 
+    // If we're waiting for dialogue to complete, check its state
+    if (eventSystem.waitingForDialogue) {
+        if (gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE) {
+            eventSystem.waitingForDialogue = false;
+            eventSystem.currentSubEventIndex++;
+        } else {
+            return; // Keep waiting
+        }
+    }
+
     const event = eventSystem.activeEvent;
     let allComplete = true;
 
-    // Process all parallel events first
+    // Process parallel events first
     event.subEvents.forEach((subEvent, index) => {
         if (subEvent.executionMode === EXECUTION_MODES.PARALLEL) {
             if (!subEvent.isStarted) {
                 subEvent.isStarted = true;
-                processSubEvent(subEvent, gameState);
+                processSubEvent(subEvent, gameState, eventSystem);
             }
             
             subEvent.isComplete = checkSubEventCompletion(subEvent, gameState);
@@ -33,37 +43,49 @@ export function updateEventSystem(eventSystem, gameState) {
         }
     });
 
-    // Then process current sequential event
+    // Process current sequential event
     const currentSubEvent = event.subEvents[eventSystem.currentSubEventIndex];
     if (currentSubEvent && currentSubEvent.executionMode === EXECUTION_MODES.SEQUENTIAL) {
         if (!currentSubEvent.isStarted) {
             currentSubEvent.isStarted = true;
-            processSubEvent(currentSubEvent, gameState);
+            processSubEvent(currentSubEvent, gameState, eventSystem);
         }
-        
-        currentSubEvent.isComplete = checkSubEventCompletion(currentSubEvent, gameState);
+
+        // Special handling for dialogue
+        if (currentSubEvent.type === SUBEVENT_TYPES.NPC_DIALOGUE) {
+            if (gameState.dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
+                eventSystem.waitingForDialogue = true;
+                allComplete = false;
+            } else {
+                currentSubEvent.isComplete = true;
+            }
+        } else {
+            currentSubEvent.isComplete = checkSubEventCompletion(currentSubEvent, gameState);
+        }
+
         if (!currentSubEvent.isComplete) {
             allComplete = false;
-        } else {
-            // Only move to next event if current sequential is complete
+        } else if (!eventSystem.waitingForDialogue) {
             eventSystem.currentSubEventIndex++;
         }
     }
 
-    // Check if all events are complete
-    if (eventSystem.currentSubEventIndex >= event.subEvents.length) {
+    // Check completion
+    if (eventSystem.currentSubEventIndex >= event.subEvents.length && allComplete) {
         eventSystem.isProcessing = false;
         eventSystem.activeEvent = null;
         eventSystem.currentSubEventIndex = 0;
+        eventSystem.waitingForDialogue = false;
+        gameState.canMove = true; // Ensure movement is re-enabled
     }
 }
 
-function processSubEvent(subEvent, gameState) {
+function processSubEvent(subEvent, gameState, eventSystem) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.NPC_DIALOGUE:
-            // Use the event dialogue instead of direct lines
             const dialogueLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
             startDialogue(gameState.dialogueSystem, dialogueLines);
+            gameState.canMove = subEvent.executionMode === EXECUTION_MODES.PARALLEL;
             break;
             
         case SUBEVENT_TYPES.MOVE_PLAYER:
@@ -76,8 +98,8 @@ function processSubEvent(subEvent, gameState) {
 
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
-        case SUBEVENT_TYPES.DIALOGUE:
-            return gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE;
+        case SUBEVENT_TYPES.NPC_DIALOGUE:
+            return false; // Handled specially in update
         case SUBEVENT_TYPES.MOVE_PLAYER:
             return !gameState.player.moving;
         default:
