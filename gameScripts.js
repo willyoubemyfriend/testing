@@ -47,5 +47,17 @@ export const GAME_EVENTS = {
                 executionMode: EXECUTION_MODES.PARALLEL
             }
         ]
+    },
+    MOVEMENT_TEST: {
+        description: "Testing if movement even works",
+        subEvents: [
+            {
+                type: SUBEVENT_TYPES.MOVE_PLAYER,
+                targetX: 1,
+                targetY: 3,
+                speed: 1,
+                executionMode: EXECUTION_MODES.SEQUENTIAL
+            }
+        ]
     }
 };
