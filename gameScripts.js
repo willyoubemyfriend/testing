@@ -1,34 +1,24 @@
+// gameScripts.js
 import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventSystem.js';
 
 export const GAME_EVENTS = {
-    // Basic test event
     TEST_EVENT: {
         description: "Test dialogue event",
         subEvents: [
             {
-                type: SUBEVENT_TYPES.DIALOGUE,
-                lines: ["This is a test event!", "It works!"],
-                executionMode: EXECUTION_MODES.SEQUENTIAL,
-                isStarted: false,
-                isComplete: false
-            },
-            {
-                type: SUBEVENT_TYPES.DIALOGUE,
-                lines: ["This is testing two dialogues in sequence."],
-                executionMode:EXECUTION_MODES.SEQUENTIAL,
-                isStarted: false,
-                isComplete: false
+                type: SUBEVENT_TYPES.NPC_DIALOGUE,
+                npcId: -1, // Special ID for event-triggered dialogue
+                executionMode: EXECUTION_MODES.SEQUENTIAL
             }
         ]
     },
 
-    // Parallel example
     PARALLEL_DEMO: {
         description: "NPC talks while moving",
         subEvents: [
             {
-                type: SUBEVENT_TYPES.DIALOGUE,
-                lines: ["Watch me move and talk at the same time!"],
+                type: SUBEVENT_TYPES.NPC_DIALOGUE,
+                npcId: -2, // Another special ID
                 executionMode: EXECUTION_MODES.PARALLEL
             },
             {
@@ -37,12 +27,18 @@ export const GAME_EVENTS = {
                 targetY: 3,
                 speed: 1,
                 executionMode: EXECUTION_MODES.PARALLEL
-            },
-            {
-                type: SUBEVENT_TYPES.DIALOGUE,
-                lines: ["Now I'll talk AFTER moving"],
-                executionMode: EXECUTION_MODES.SEQUENTIAL
             }
         ]
     }
+};
+
+// Event-specific dialogue (using same format as NPCs)
+export const EVENT_DIALOGUE = {
+    "-1": [ // Matches npcId in TEST_EVENT
+        "This is a test event!", 
+        "It works!"
+    ],
+    "-2": [ // Matches npcId in PARALLEL_DEMO
+        "Watch me move and talk at the same time!"
+    ]
 };
