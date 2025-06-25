@@ -17,45 +17,54 @@ export const EXECUTION_MODES = {
 };
 
 // Core System
+export function createEventSystem() {
+    return {
+        activeEvent: null,
+        currentSubEventIndex: 0,
+        isProcessing: false,
+        parallelCompletion: {} // Tracks parallel sub-event completion
+    };
+}
+
+// Main Update Loop
 export function updateEventSystem(eventSystem, gameState) {
     if (!eventSystem.isProcessing || !eventSystem.activeEvent) return;
 
     const currentEvent = eventSystem.activeEvent;
     let allComplete = true;
 
-    // Process all sub-events that should be active
+    // Process all sub-events
     currentEvent.subEvents.forEach((subEvent, index) => {
-        // Skip completed sub-events
         if (subEvent.isComplete) return;
 
-        // Determine if this sub-event should be active
-        const isSequential = subEvent.executionMode === EXECUTION_MODES.SEQUENTIAL;
-        const isParallel = subEvent.executionMode === EXECUTION_MODES.PARALLEL;
-        const isCurrentSequential = (index === eventSystem.currentSubEventIndex);
-        
-        if ((isParallel || isCurrentSequential) && !subEvent.isStarted) {
+        // Start new sub-events
+        if (!subEvent.isStarted) {
             subEvent.isStarted = true;
             processSubEvent(subEvent, gameState);
         }
 
-        // Update completion status for active sub-events
-        if (isParallel || isCurrentSequential) {
+        // Check completion based on mode
+        const isActiveParallel = (subEvent.executionMode === EXECUTION_MODES.PARALLEL);
+        const isCurrentSequential = (index === eventSystem.currentSubEventIndex);
+        
+        if (isActiveParallel || isCurrentSequential) {
             subEvent.isComplete = checkSubEventCompletion(subEvent, gameState);
         }
 
-        // Track overall completion
         if (!subEvent.isComplete) allComplete = false;
     });
 
-    // Progress sequential index if needed
+    // Manage sequential progression
     if (!allComplete) {
         const currentSubEvent = currentEvent.subEvents[eventSystem.currentSubEventIndex];
-        if (currentSubEvent?.isComplete) {
-            eventSystem.currentSubEventIndex++;
+        if (currentSubEvent?.executionMode === EXECUTION_MODES.SEQUENTIAL && 
+            !currentSubEvent.isComplete) {
+            return;
         }
+        eventSystem.currentSubEventIndex++;
     }
 
-    // Clean up when done
+    // Finalize event
     if (allComplete) {
         eventSystem.isProcessing = false;
     }
