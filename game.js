@@ -38,6 +38,9 @@ import {
     DIALOGUE_STATE
 } from './dialogueSystem.js';
 
+import { startEvent, updateEvent, isEventRunning } from './eventSystem.js';
+import { Events } from './eventList.js';
+
 import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
@@ -122,6 +125,10 @@ function handleKeyPress(key) {
         if (key === ".") changeInventoryPage(inventory, 1);
         if (key === ",") changeInventoryPage(inventory, -1);
     }
+    if (key === "e" && !isEventRunning()) {
+        startEvent(Events.introScene);
+        return;
+    }
 }
 
 function canMoveInCurrentRoom(x, y) {
@@ -136,6 +143,11 @@ function canMoveInCurrentRoom(x, y) {
 }
 
 function update() {
+    if (isEventRunning()) {
+        updateEvent(player, dialogueSystem);
+        return;
+    }
+    
     // Dialogue updates
     if (dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
         updateDialogue(dialogueSystem);
