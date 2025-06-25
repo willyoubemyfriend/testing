@@ -9,3 +9,4 @@ export const EXECUTION_MODES = {
     SEQUENTIAL: "SEQUENTIAL",
     PARALLEL: "PARALLEL"
 };
+
