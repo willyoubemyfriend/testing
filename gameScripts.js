@@ -23,6 +23,11 @@ export const GAME_EVENTS = {
                 npcId: -1,
                 executionMode: EXECUTION_MODES.SEQUENTIAL
             },
+            {
+                type: SUBEVENT_TYPES.NPC_DIALOGUE,
+                npcID: -3,
+                executionMode: EXECUTION_MODES.SEQUENTIAL
+            }
             
         ]
     },
