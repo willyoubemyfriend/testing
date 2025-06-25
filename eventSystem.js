@@ -19,7 +19,7 @@ export function updateEventSystem(eventSystem, gameState) {
     let allComplete = true;
 
     // Process all parallel events first
-    event.subEvents.forEach((subEvent, index) => {
+    event.subEvents.forEach((subEvent) => {
         if (subEvent.executionMode === EXECUTION_MODES.PARALLEL) {
             if (!subEvent.isStarted) {
                 subEvent.isStarted = true;
@@ -45,7 +45,6 @@ export function updateEventSystem(eventSystem, gameState) {
         if (!currentSubEvent.isComplete) {
             allComplete = false;
         } else {
-            // Only move to next event if current sequential is complete
             eventSystem.currentSubEventIndex++;
         }
     }
@@ -61,7 +60,6 @@ export function updateEventSystem(eventSystem, gameState) {
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.NPC_DIALOGUE:
-            // Use the event dialogue instead of direct lines
             const dialogueLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
             startDialogue(gameState.dialogueSystem, dialogueLines);
             break;
@@ -76,7 +74,7 @@ function processSubEvent(subEvent, gameState) {
 
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
-        case SUBEVENT_TYPES.DIALOGUE:
+        case SUBEVENT_TYPES.NPC_DIALOGUE: 
             return gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE;
         case SUBEVENT_TYPES.MOVE_PLAYER:
             return !gameState.player.moving;
