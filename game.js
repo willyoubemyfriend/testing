@@ -38,18 +38,6 @@ import {
     DIALOGUE_STATE
 } from './dialogueSystem.js';
 
-import { 
-    createEventSystem, 
-    updateEventSystem 
-} from './eventSystem.js';
-
-import { 
-    SUBEVENT_TYPES 
-} from './eventTypes.js';
-
-
-import { GAME_EVENTS } from './gameScripts.js';
-
 import { assets, loadAssets } from './assetLoader.js';
 
 const canvas = document.getElementById("game");
@@ -57,8 +45,6 @@ const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
 // Initialize game state
-let player = createPlayer();
-let dialogueSystem = createDialogueSystem();
 const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
 const enemyStatuses = Array(28).fill("newlife");
@@ -66,15 +52,14 @@ const enemyStatuses = Array(28).fill("newlife");
 let currentRoomIndex = 0;
 let gameState = {
     mode: 'overworld',
-    canMove: true,
-    dialogueSystem: dialogueSystem,
-    player: player
+    canMove: true
 };
 
 let enemyAnimTimer = 0;
 let enemyAnimFrame = 0;
 const enemyAnimInterval = 250;
 
+let player = createPlayer();
 let inventory = createInventory();
 
 let roomTransition = {
@@ -89,8 +74,7 @@ let roomTransition = {
     roomGap: 0
 };
 
-
-let eventSystem = createEventSystem();
+let dialogueSystem = createDialogueSystem();
 
 // Input handling
 const keys = {};
@@ -101,16 +85,6 @@ window.addEventListener("keydown", (e) => {
 window.addEventListener("keyup", (e) => {
     keys[e.key] = false;
 });
-
-function triggerEvent(eventId) {
-    if (!GAME_EVENTS[eventId]) {
-        console.error("Event not found:", eventId);
-        return;
-    }
-    eventSystem.activeEvent = JSON.parse(JSON.stringify(GAME_EVENTS[eventId])); // Deep copy
-    eventSystem.currentSubEventIndex = 0;
-    eventSystem.isProcessing = true;
-}
 
 function handleKeyPress(key) {
     // Dialogue advancement
@@ -148,8 +122,6 @@ function handleKeyPress(key) {
         if (key === ".") changeInventoryPage(inventory, 1);
         if (key === ",") changeInventoryPage(inventory, -1);
     }
-    
-    if (key === "t") triggerEvent("TEST_EVENT"); 
 }
 
 function canMoveInCurrentRoom(x, y) {
@@ -164,11 +136,6 @@ function canMoveInCurrentRoom(x, y) {
 }
 
 function update() {
-    // Event processing 
-    if (eventSystem.isProcessing) {
-        updateEventSystem(eventSystem, gameState);
-        return; // Pause other updates during events
-    }
     // Dialogue updates
     if (dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
         updateDialogue(dialogueSystem);
