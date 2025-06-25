@@ -2,7 +2,6 @@ import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventTypes.js';
 import { startDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { EVENT_DIALOGUE } from './gameScripts.js';
 
-
 export function createEventSystem() {
     return {
         activeEvent: null,
@@ -33,7 +32,7 @@ export function updateEventSystem(eventSystem, gameState) {
         }
     });
 
-    // Then process current sequential event
+    // Process current sequential event
     const currentSubEvent = event.subEvents[eventSystem.currentSubEventIndex];
     if (currentSubEvent && currentSubEvent.executionMode === EXECUTION_MODES.SEQUENTIAL) {
         if (!currentSubEvent.isStarted) {
@@ -45,13 +44,12 @@ export function updateEventSystem(eventSystem, gameState) {
         if (!currentSubEvent.isComplete) {
             allComplete = false;
         } else {
-            // Only move to next event if current sequential is complete
             eventSystem.currentSubEventIndex++;
         }
     }
 
     // Check if all events are complete
-    if (eventSystem.currentSubEventIndex >= event.subEvents.length) {
+    if (eventSystem.currentSubEventIndex >= event.subEvents.length && allComplete) {
         eventSystem.isProcessing = false;
         eventSystem.activeEvent = null;
         eventSystem.currentSubEventIndex = 0;
@@ -61,8 +59,11 @@ export function updateEventSystem(eventSystem, gameState) {
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.NPC_DIALOGUE:
-            // Use the event dialogue instead of direct lines
             const dialogueLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
+            // Critical reset for clean dialogue starts
+            gameState.dialogueSystem.state = DIALOGUE_STATE.INACTIVE;
+            gameState.dialogueSystem.currentLineIndex = 0;
+            gameState.dialogueSystem.currentCharIndex = 0;
             startDialogue(gameState.dialogueSystem, dialogueLines);
             break;
             
@@ -76,8 +77,10 @@ function processSubEvent(subEvent, gameState) {
 
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
-        case SUBEVENT_TYPES.DIALOGUE:
-            return gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE;
+        case SUBEVENT_TYPES.NPC_DIALOGUE:
+            // Check if we've displayed all lines (not just dialogue state)
+            return gameState.dialogueSystem.currentLineIndex >= 
+                   gameState.dialogueSystem.currentLines.length;
         case SUBEVENT_TYPES.MOVE_PLAYER:
             return !gameState.player.moving;
         default:
