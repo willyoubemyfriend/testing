@@ -1,4 +1,8 @@
 // eventSystem.js
+import {
+    startDialogue,
+    DIALOGUE_STATE
+} from './dialogueSystem.js';
 
 // Event Types and Execution Modes
 export const SUBEVENT_TYPES = {
@@ -75,8 +79,7 @@ function processSubEvent(subEvent, gameState) {
                 subEvent.isComplete = true;
                 return;
             }
-            gameState.dialogueSystem.currentLines = subEvent.lines;
-            startDialogue(gameState.dialogueSystem);
+            startDialogue(gameState.dialogueSystem, subEvent.lines);
             break;
 
         case SUBEVENT_TYPES.MOVE_PLAYER:
@@ -95,10 +98,8 @@ function processSubEvent(subEvent, gameState) {
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.DIALOGUE:
-            // Safely check dialogue completion
             return gameState.dialogueSystem?.state === DIALOGUE_STATE.INACTIVE;
         case SUBEVENT_TYPES.MOVE_PLAYER:
-            // Safely check movement completion
             return !gameState.player?.moving;
         default:
             return true;
