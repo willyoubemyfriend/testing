@@ -2,9 +2,10 @@ import {
     startDialogue,
     DIALOGUE_STATE
 } from './dialogueSystem.js';
+import { EVENT_DIALOGUE } from './gameScripts.js';
 
 export const SUBEVENT_TYPES = {
-    DIALOGUE: "DIALOGUE",
+    NPC_DIALOGUE: "NPC_DIALOGUE", // Changed from DIALOGUE to NPC_DIALOGUE
     MOVE_PLAYER: "MOVE_PLAYER",
     CHANGE_ROOM: "CHANGE_ROOM"
 };
@@ -71,9 +72,10 @@ export function updateEventSystem(eventSystem, gameState) {
 
 function processSubEvent(subEvent, gameState) {
     switch (subEvent.type) {
-        case SUBEVENT_TYPES.DIALOGUE:
-            gameState.dialogueSystem.currentLines = subEvent.lines;
-            startDialogue(gameState.dialogueSystem);
+        case SUBEVENT_TYPES.NPC_DIALOGUE:
+            // Use the event dialogue instead of direct lines
+            const dialogueLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
+            startDialogue(gameState.dialogueSystem, dialogueLines);
             break;
             
         case SUBEVENT_TYPES.MOVE_PLAYER:
