@@ -149,7 +149,7 @@ function handleKeyPress(key) {
         if (key === ",") changeInventoryPage(inventory, -1);
     }
     
-    if (key === "t") triggerEvent("MOVEMENT_TEST"); 
+    if (key === "t") triggerEvent("TEST_EVENT"); 
 }
 
 function canMoveInCurrentRoom(x, y) {
