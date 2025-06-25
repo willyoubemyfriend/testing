@@ -1,6 +1,7 @@
 import { SUBEVENT_TYPES, EXECUTION_MODES } from './eventTypes.js';
 import { startDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { EVENT_DIALOGUE } from './gameScripts.js';
+import { TILE_SIZE } from './roomSystem.js';
 
 export function createEventSystem() {
     return {
@@ -8,27 +9,27 @@ export function createEventSystem() {
         currentSubEventIndex: 0,
         isProcessing: false,
         parallelCompletion: {},
-        waitingForDialogue: false // New flag for dialogue handling
+        waitingForDialogue: false
     };
 }
 
 export function updateEventSystem(eventSystem, gameState) {
     if (!eventSystem.isProcessing || !eventSystem.activeEvent) return;
 
-    // If we're waiting for dialogue to complete, check its state
+    // Handle waiting for dialogue completion
     if (eventSystem.waitingForDialogue) {
         if (gameState.dialogueSystem.state === DIALOGUE_STATE.INACTIVE) {
             eventSystem.waitingForDialogue = false;
             eventSystem.currentSubEventIndex++;
         } else {
-            return; // Keep waiting
+            return;
         }
     }
 
     const event = eventSystem.activeEvent;
     let allComplete = true;
 
-    // Process parallel events first
+    // Process parallel events
     event.subEvents.forEach((subEvent, index) => {
         if (subEvent.executionMode === EXECUTION_MODES.PARALLEL) {
             if (!subEvent.isStarted) {
@@ -37,9 +38,7 @@ export function updateEventSystem(eventSystem, gameState) {
             }
             
             subEvent.isComplete = checkSubEventCompletion(subEvent, gameState);
-            if (!subEvent.isComplete) {
-                allComplete = false;
-            }
+            if (!subEvent.isComplete) allComplete = false;
         }
     });
 
@@ -51,7 +50,6 @@ export function updateEventSystem(eventSystem, gameState) {
             processSubEvent(currentSubEvent, gameState, eventSystem);
         }
 
-        // Special handling for dialogue
         if (currentSubEvent.type === SUBEVENT_TYPES.NPC_DIALOGUE) {
             if (gameState.dialogueSystem.state !== DIALOGUE_STATE.INACTIVE) {
                 eventSystem.waitingForDialogue = true;
@@ -61,30 +59,27 @@ export function updateEventSystem(eventSystem, gameState) {
             }
         } else {
             currentSubEvent.isComplete = checkSubEventCompletion(currentSubEvent, gameState);
+            if (currentSubEvent.isComplete) eventSystem.currentSubEventIndex++;
         }
 
-        if (!currentSubEvent.isComplete) {
-            allComplete = false;
-        } else if (!eventSystem.waitingForDialogue) {
-            eventSystem.currentSubEventIndex++;
-        }
+        if (!currentSubEvent.isComplete) allComplete = false;
     }
 
     // Check completion
     if (eventSystem.currentSubEventIndex >= event.subEvents.length && allComplete) {
-        eventSystem.isProcessing = false;
-        eventSystem.activeEvent = null;
-        eventSystem.currentSubEventIndex = 0;
-        eventSystem.waitingForDialogue = false;
-        gameState.canMove = true; // Ensure movement is re-enabled
+        completeEvent(eventSystem, gameState);
     }
 }
 
 function processSubEvent(subEvent, gameState, eventSystem) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.NPC_DIALOGUE:
-            const dialogueLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
-            startDialogue(gameState.dialogueSystem, dialogueLines);
+            gameState.dialogueSystem.state = DIALOGUE_STATE.TYPING;
+            gameState.dialogueSystem.currentLines = EVENT_DIALOGUE[subEvent.npcId] || ["..."];
+            gameState.dialogueSystem.currentLineIndex = 0;
+            gameState.dialogueSystem.currentCharIndex = 0;
+            gameState.dialogueSystem.timer = 0;
+            gameState.dialogueSystem.preprocessedLines = [];
             gameState.canMove = subEvent.executionMode === EXECUTION_MODES.PARALLEL;
             break;
             
@@ -92,6 +87,8 @@ function processSubEvent(subEvent, gameState, eventSystem) {
             gameState.player.moving = true;
             gameState.player.x = subEvent.targetX;
             gameState.player.y = subEvent.targetY;
+            gameState.player.px = gameState.player.x * TILE_SIZE;
+            gameState.player.py = gameState.player.y * TILE_SIZE;
             break;
     }
 }
@@ -99,10 +96,18 @@ function processSubEvent(subEvent, gameState, eventSystem) {
 function checkSubEventCompletion(subEvent, gameState) {
     switch (subEvent.type) {
         case SUBEVENT_TYPES.NPC_DIALOGUE:
-            return false; // Handled specially in update
+            return false;
         case SUBEVENT_TYPES.MOVE_PLAYER:
             return !gameState.player.moving;
         default:
             return true;
     }
+}
+
+function completeEvent(eventSystem, gameState) {
+    eventSystem.isProcessing = false;
+    eventSystem.activeEvent = null;
+    eventSystem.currentSubEventIndex = 0;
+    eventSystem.waitingForDialogue = false;
+    gameState.canMove = true;
 }
