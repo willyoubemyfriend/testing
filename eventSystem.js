@@ -4,9 +4,6 @@ import { updatePlayerPosition } from './playerSystem.js';
 export let currentEvent = null;
 
 export function startEvent(event) {
-    if (!event || !event.steps) {
-        throw new Error("Invalid event: missing steps property");
-    }
     currentEvent = createEventInstance(event);
 }
 
@@ -37,7 +34,6 @@ function createEventInstance(event) {
             const step = this.steps[this.stepIndex];
 
             if (!this.subevents.length) {
-                // Initialize subevents in this step
                 step.forEach(sub => {
                     const instance = createSubeventInstance(sub, player, dialogueSystem);
                     this.subevents.push(instance);
@@ -73,12 +69,9 @@ function createSubeventInstance(sub, player, dialogueSystem) {
             return createWaitSub(sub);
         case "group":
             return createGroupSub(sub, player, dialogueSystem);
-        default:
-            throw new Error(`Unknown subevent type: ${sub.type}`);
     }
 }
 
-// ─────────── Dialogue ───────────
 function createDialogueSub(sub, dialogueSystem) {
     startDialogue(dialogueSystem, sub.lines);
     return {
@@ -92,7 +85,6 @@ function createDialogueSub(sub, dialogueSystem) {
     };
 }
 
-// ─────────── Move Player ───────────
 function createMovePlayerSub(sub, player) {
     player.x = sub.x;
     player.y = sub.y;
@@ -106,7 +98,6 @@ function createMovePlayerSub(sub, player) {
     };
 }
 
-// ─────────── Wait ───────────
 function createWaitSub(sub) {
     let timer = sub.duration;
     return {
@@ -118,7 +109,6 @@ function createWaitSub(sub) {
     };
 }
 
-// ─────────── Group ───────────
 function createGroupSub(sub, player, dialogueSystem) {
     const group = createEventInstance({ steps: sub.steps });
     return {
