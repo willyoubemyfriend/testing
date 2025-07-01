@@ -1,6 +1,6 @@
 import { startDialogue, updateDialogue, advanceDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { updatePlayerPosition } from './playerSystem.js';
-import { updateNPCPosition, setNPCTargetPosition } from './npcs.js';
+import { updateNPCPosition, setNPCTargetPosition, getNPCsInRoom } from './npcs.js';
 
 export let currentEvent = null;
 
