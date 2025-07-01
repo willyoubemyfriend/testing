@@ -1,5 +1,6 @@
 import { startDialogue, updateDialogue, advanceDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { updatePlayerPosition } from './playerSystem.js';
+import { updateNPCPosition, setNPCTargetPosition } from './npcs.js';
 
 export let currentEvent = null;
 
@@ -68,6 +69,8 @@ function createSubeventInstance(sub, player, dialogueSystem) {
             return createMovePlayerSub(sub, player);
         case "movePlayerRelative":
             return createMovePlayerRelativeSub(sub, player);
+        case "moveNPC":
+            return createMoveNPCSub(sub);
         case "wait":
             return createWaitSub(sub);
         case "group":
@@ -122,6 +125,36 @@ function createMovePlayerRelativeSub(sub, player) {
         done: false,
         update() {
             const finished = updatePlayerPosition(player);
+            if (finished) this.done = true;
+        }
+    };
+}
+
+function createMoveNPCSub(sub) {
+    // Find the NPC in the current room
+    const npcs = getNPCsInRoom(currentRoomIndex);
+    const npc = npcs.find(n => n.id === sub.id);
+    
+
+    // Calculate target position (absolute or relative)
+    let targetX, targetY;
+    if (sub.x !== undefined && sub.y !== undefined) {
+        // Absolute position
+        targetX = sub.x;
+        targetY = sub.y;
+    } else {
+        // Relative position
+        targetX = npc.x + (sub.dx || 0);
+        targetY = npc.y + (sub.dy || 0);
+    }
+
+    // Set NPC's target position
+    setNPCTargetPosition(npc, targetX, targetY);
+    
+    return {
+        done: false,
+        update() {
+            const finished = updateNPCPosition(npc);
             if (finished) this.done = true;
         }
     };
