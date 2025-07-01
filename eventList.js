@@ -41,13 +41,9 @@ export const Events = {
             ],
             [
                 {
-                    type: "group",
-                    steps: [
-                        [ { type: "moveNPC", id: 1, dx: -4 } ],
-                        [ { type: "moveNPC", id: 1, dy: -2 } ],
-                        [ { type: "dialogue", lines: ["I'm outta here brother!!!!!!!"] } ],
-                        [ { type: "moveNPC", id: 1, dx: -4 } ]
-                    ]
+                    type: "moveNPC",
+                    id: 1,
+                    dx: -4
                 }
             ]
         ]
