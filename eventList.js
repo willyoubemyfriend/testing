@@ -1,19 +1,26 @@
 export const Events = {
-    fancyScene: {
+    testNested: {
         steps: [
-            [
-                { type: "dialogue", lines: ["Watch me move while I talk..."] },
+            [ // Step 1 — runs in parallel
                 { 
-                    type: "group", steps: [
-                        [ { type: "wait", duration: 60 } ], // Wait 1 second
-                        [ { type: "movePlayer", x: 5, y: 5 } ], // Then move
-                        [ { type: "wait", duration: 60 } ], // Then wait again
-                        [ { type: "movePlayer", x: 7, y: 7 } ] // Then move again
+                    type: "dialogue", 
+                    lines: ["I will talk while you wait and move."] 
+                },
+                { 
+                    type: "group", 
+                    steps: [
+                        [ { type: "wait", duration: 60 } ],          // Wait 1 second
+                        [ { type: "movePlayer", x: 5, y: 5 } ],      // Move
+                        [ { type: "wait", duration: 30 } ],          // Wait half a second
+                        [ { type: "movePlayer", x: 7, y: 7 } ]       // Move again
                     ]
                 }
             ],
-            [
-                { type: "dialogue", lines: ["And now I'm done."] }
+            [ // Step 2 — after everything in step 1
+                { 
+                    type: "dialogue", 
+                    lines: ["Done! That was cool."] 
+                }
             ]
         ]
     }
