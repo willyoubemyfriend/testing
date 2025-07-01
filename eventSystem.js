@@ -9,10 +9,10 @@ export function startEvent(event, roomIndex) {
     currentEvent = createEventInstance(event, roomIndex);
 }
 
-export function updateEvent(player, dialogueSystem) {
+export function updateEvent(player, dialogueSystem, currentRoomIndex) {
     if (!currentEvent) return;
 
-    currentEvent.update(player, dialogueSystem);
+    currentEvent.update(player, dialogueSystem, currentRoomIndex);
 
     if (currentEvent.done) {
         currentEvent = null;
@@ -43,7 +43,9 @@ function createEventInstance(eventDef, initialRoomIndex) {
             const step = this.steps[this.stepIndex];
 
             if (!this.subevents.length) {
-                this.subevents = step.map(sub => createSubeventInstance(sub, player, dialogueSystem, this.currentRoomIndex));
+                this.subevents = step.map(sub => 
+                    createSubeventInstance(sub, player, dialogueSystem, this.currentRoomIndex)
+                );
             }
 
             let allDone = true;
@@ -80,7 +82,7 @@ function createSubeventInstance(sub, player, dialogueSystem, currentRoomIndex) {
         case "wait":
             return createWaitSub(sub);
         case "group":
-            return createGroupSub(sub, player, dialogueSystem);
+            return createGroupSub(sub, player, dialogueSystem, currentRoomIndex);
         default:
             throw new Error(`Unknown subevent type: ${sub.type}`);
     }
@@ -117,12 +119,11 @@ function createMovePlayerSub(sub, player) {
 }
 
 // ─── Move Player Relative Subevent ───
+
 function createMovePlayerRelativeSub(sub, player) {
-    // Calculate target position relative to current position
     const targetX = player.x + (sub.dx || 0);
     const targetY = player.y + (sub.dy || 0);
     
-    // Set player's target position and start moving
     player.x = targetX;
     player.y = targetY;
     player.moving = true;
@@ -136,25 +137,26 @@ function createMovePlayerRelativeSub(sub, player) {
     };
 }
 
+// ─── Move NPC Subevent ───
+
 function createMoveNPCSub(sub, currentRoomIndex) {
-    // Find the NPC in the current room
     const npcs = getNPCsInRoom(currentRoomIndex);
     const npc = npcs.find(n => n.id === sub.id);
     
-
-    // Calculate target position (absolute or relative)
-    let targetX, targetY;
-    if (sub.x !== undefined && sub.y !== undefined) {
-        // Absolute position
-        targetX = sub.x;
-        targetY = sub.y;
-    } else {
-        // Relative position
-        targetX = npc.x + (sub.dx || 0);
-        targetY = npc.y + (sub.dy || 0);
+    if (!npc) {
+        return { done: true, update: () => {} };
     }
 
-    // Set NPC's target position
+    // Initialize movement properties if they don't exist
+    if (typeof npc.px === 'undefined') npc.px = npc.x * TILE_SIZE;
+    if (typeof npc.py === 'undefined') npc.py = npc.y * TILE_SIZE;
+    if (typeof npc.moving === 'undefined') npc.moving = false;
+
+    // Calculate target position
+    const targetX = sub.x !== undefined ? sub.x : npc.x + (sub.dx || 0);
+    const targetY = sub.y !== undefined ? sub.y : npc.y + (sub.dy || 0);
+
+    // Set target position
     setNPCTargetPosition(npc, targetX, targetY);
     
     return {
@@ -181,13 +183,13 @@ function createWaitSub(sub) {
 
 // ─── Group Subevent (Nested Event) ───
 
-function createGroupSub(sub, player, dialogueSystem) {
-    const groupEvent = createEventInstance({ steps: sub.steps });
+function createGroupSub(sub, player, dialogueSystem, currentRoomIndex) {
+    const groupEvent = createEventInstance({ steps: sub.steps }, currentRoomIndex);
 
     return {
         done: false,
         update() {
-            groupEvent.update(player, dialogueSystem);
+            groupEvent.update(player, dialogueSystem, currentRoomIndex);
             if (groupEvent.done) {
                 this.done = true;
             }
