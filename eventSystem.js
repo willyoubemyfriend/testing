@@ -68,6 +68,10 @@ function createSubeventInstance(sub, player, dialogueSystem) {
             return createMovePlayerSub(sub, player);
         case "movePlayerRelative":
             return createMovePlayerRelativeSub(sub, player);
+        case "moveNPC":
+            return createMoveNPCSub(sub, npcs);
+        case "moveNPCRelative":
+            return createMoveNPCRelativeSub(sub, npcs);
         case "wait":
             return createWaitSub(sub);
         case "group":
@@ -126,6 +130,46 @@ function createMovePlayerRelativeSub(sub, player) {
         }
     };
 }
+
+// ─── Move NPC to Absolute ───
+function createMoveNPCSub(sub, npcs) {
+    const npc = npcs.find(n => n.id === sub.id);
+    if (!npc) throw new Error(`NPC with id ${sub.id} not found.`);
+
+    npc.x = sub.x;
+    npc.y = sub.y;
+    npc.moving = true;
+
+    return {
+        done: false,
+        update() {
+            const finished = updateNPCPosition(npc);
+            if (finished) this.done = true;
+        }
+    };
+}
+
+// ─── Move NPC Relative ───
+function createMoveNPCRelativeSub(sub, npcs) {
+    const npc = npcs.find(n => n.id === sub.id);
+    if (!npc) throw new Error(`NPC with id ${sub.id} not found.`);
+
+    const targetX = npc.x + (sub.dx || 0);
+    const targetY = npc.y + (sub.dy || 0);
+
+    npc.x = targetX;
+    npc.y = targetY;
+    npc.moving = true;
+
+    return {
+        done: false,
+        update() {
+            const finished = updateNPCPosition(npc);
+            if (finished) this.done = true;
+        }
+    };
+}
+
 
 // ─── Wait Subevent ───
 
