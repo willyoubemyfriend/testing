@@ -5,7 +5,9 @@ export const Events = {
                 {
                     type: "movePlayerRelative",
                     dy: 1
-                },
+                }
+            ],
+            [
                 // Dialogue starts
                 { 
                     type: "dialogue", 
