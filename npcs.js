@@ -126,3 +126,32 @@ export function isNPCCollision(playerX, playerY, roomIndex) {
         npc.y === playerY
     );
 }
+
+export function updateNPCPosition(npc) {
+    // Similar to player movement, but for NPCs
+    if (!npc.moving) return true; // Already at target
+    
+    const dx = npc.targetX * TILE_SIZE - npc.px;
+    const dy = npc.targetY * TILE_SIZE - npc.py;
+    
+    if (dx === 0 && dy === 0) {
+        npc.moving = false;
+        return true;
+    }
+    
+    const moveSpeed = 2; // Adjust as needed
+    npc.px += Math.sign(dx) * Math.min(moveSpeed, Math.abs(dx));
+    npc.py += Math.sign(dy) * Math.min(moveSpeed, Math.abs(dy));
+    
+    return false;
+}
+
+export function setNPCTargetPosition(npc, x, y) {
+    npc.x = x;
+    npc.y = y;
+    npc.targetX = x;
+    npc.targetY = y;
+    npc.px = npc.x * TILE_SIZE;
+    npc.py = npc.y * TILE_SIZE;
+    npc.moving = true;
+}
