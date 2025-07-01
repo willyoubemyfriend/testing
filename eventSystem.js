@@ -66,6 +66,8 @@ function createSubeventInstance(sub, player, dialogueSystem) {
             return createDialogueSub(sub, dialogueSystem);
         case "movePlayer":
             return createMovePlayerSub(sub, player);
+        case "movePlayerRelative":
+            return createMovePlayerRelativeSub(sub, player);
         case "wait":
             return createWaitSub(sub);
         case "group":
@@ -96,6 +98,26 @@ function createMovePlayerSub(sub, player) {
     player.x = sub.x;
     player.y = sub.y;
     player.moving = true;
+    return {
+        done: false,
+        update() {
+            const finished = updatePlayerPosition(player);
+            if (finished) this.done = true;
+        }
+    };
+}
+
+// ─── Move Player Relative Subevent ───
+function createMovePlayerRelativeSub(sub, player) {
+    // Calculate target position relative to current position
+    const targetX = player.x + (sub.dx || 0);
+    const targetY = player.y + (sub.dy || 0);
+    
+    // Set player's target position and start moving
+    player.x = targetX;
+    player.y = targetY;
+    player.moving = true;
+    
     return {
         done: false,
         update() {
