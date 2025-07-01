@@ -127,31 +127,33 @@ export function isNPCCollision(playerX, playerY, roomIndex) {
     );
 }
 
-export function updateNPCPosition(npc) {
-    // Similar to player movement, but for NPCs
-    if (!npc.moving) return true; // Already at target
-    
-    const dx = npc.targetX * TILE_SIZE - npc.px;
-    const dy = npc.targetY * TILE_SIZE - npc.py;
-    
-    if (dx === 0 && dy === 0) {
-        npc.moving = false;
-        return true;
-    }
-    
-    const moveSpeed = 2; // Adjust as needed
-    npc.px += Math.sign(dx) * Math.min(moveSpeed, Math.abs(dx));
-    npc.py += Math.sign(dy) * Math.min(moveSpeed, Math.abs(dy));
-    
-    return false;
+export function instantiateNPCsForRoom(roomIndex) {
+    const npcsInRoom = getNPCsInRoom(roomIndex);
+    return npcsInRoom.map(npc => ({
+        ...npc,
+        px: npc.x * TILE_SIZE,
+        py: npc.y * TILE_SIZE,
+        moving: false,
+        speed: 1, // Same as player unless otherwise specified
+    }));
 }
 
-export function setNPCTargetPosition(npc, x, y) {
-    npc.x = x;
-    npc.y = y;
-    npc.targetX = x;
-    npc.targetY = y;
-    npc.px = npc.x * TILE_SIZE;
-    npc.py = npc.y * TILE_SIZE;
-    npc.moving = true;
+export function updateNPCPosition(npc) {
+    if (npc.moving) {
+        const tx = npc.x * TILE_SIZE;
+        const ty = npc.y * TILE_SIZE;
+
+        if (npc.px < tx) npc.px += npc.speed;
+        if (npc.px > tx) npc.px -= npc.speed;
+        if (npc.py < ty) npc.py += npc.speed;
+        if (npc.py > ty) npc.py -= npc.speed;
+
+        if (Math.abs(npc.px - tx) < npc.speed && Math.abs(npc.py - ty) < npc.speed) {
+            npc.px = tx;
+            npc.py = ty;
+            npc.moving = false;
+            return true; // Movement finished
+        }
+    }
+    return false;
 }
