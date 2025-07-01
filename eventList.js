@@ -1,27 +1,19 @@
 export const Events = {
-    introScene: {
+    fancyScene: {
         steps: [
-            [ // Step 1: Move player
-                { type: "movePlayer", x: 5, y: 5 }
-            ],
-            [ // Step 2: Dialogue
+            [
+                { type: "dialogue", lines: ["Watch me move while I talk..."] },
                 { 
-                    type: "dialogue", 
-                    lines: [
-                        "Hello there...",
-                        "Welcome to the nightmare dungeon.",
-                        "You won't leave here easily."
-                    ] 
+                    type: "group", steps: [
+                        [ { type: "wait", duration: 60 } ], // Wait 1 second
+                        [ { type: "movePlayer", x: 5, y: 5 } ], // Then move
+                        [ { type: "wait", duration: 60 } ], // Then wait again
+                        [ { type: "movePlayer", x: 7, y: 7 } ] // Then move again
+                    ]
                 }
             ],
-            [ // Step 3: Wait (for pacing)
-                { type: "wait", duration: 60 } // 60 frames (~1 second)
-            ],
-            [ // Step 4: Another Dialogue
-                { 
-                    type: "dialogue", 
-                    lines: ["...Good luck."]
-                }
+            [
+                { type: "dialogue", lines: ["And now I'm done."] }
             ]
         ]
     }
