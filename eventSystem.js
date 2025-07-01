@@ -147,11 +147,6 @@ function createMoveNPCSub(sub, currentRoomIndex) {
         return { done: true, update: () => {} };
     }
 
-    // Initialize movement properties if they don't exist
-    if (typeof npc.px === 'undefined') npc.px = npc.x * TILE_SIZE;
-    if (typeof npc.py === 'undefined') npc.py = npc.y * TILE_SIZE;
-    if (typeof npc.moving === 'undefined') npc.moving = false;
-
     // Calculate target position
     const targetX = sub.x !== undefined ? sub.x : npc.x + (sub.dx || 0);
     const targetY = sub.y !== undefined ? sub.y : npc.y + (sub.dy || 0);
