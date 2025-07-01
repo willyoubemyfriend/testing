@@ -52,7 +52,7 @@ const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
 const enemyStatuses = Array(28).fill("newlife");
 
-export let currentRoomIndex = 0;
+let currentRoomIndex = 0;
 let gameState = {
     mode: 'overworld',
     canMove: true
@@ -126,7 +126,7 @@ function handleKeyPress(key) {
         if (key === ",") changeInventoryPage(inventory, -1);
     }
     if (key === "e" && !isEventRunning()) {
-        startEvent(Events.taciturnipScene);
+        startEvent(Events.introScene);
         return;
     }
 }
@@ -144,7 +144,7 @@ function canMoveInCurrentRoom(x, y) {
 
 function update() {
     if (isEventRunning()) {
-        updateEvent(player, dialogueSystem, currentRoomIndex);
+        updateEvent(player, dialogueSystem);
         return;
     }
     
