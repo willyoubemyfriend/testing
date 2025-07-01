@@ -73,7 +73,7 @@ export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
             npcSpritesheet,
             npc.spriteIndex * TILE_SIZE, 0,
             TILE_SIZE, TILE_SIZE,
-            npc.x * TILE_SIZE, npc.y * TILE_SIZE,
+            npc.px, npc.py,
             TILE_SIZE, TILE_SIZE
         );
 
@@ -111,8 +111,8 @@ export function drawNPCsInTransition(ctx, roomIndex, offsetX, offsetY, npcSprite
             npcSpritesheet,
             npc.spriteIndex * TILE_SIZE, 0,
             TILE_SIZE, TILE_SIZE,
-            npc.x * TILE_SIZE + offsetX,
-            npc.y * TILE_SIZE + offsetY,
+            npc.px + offsetX,
+            npc.py + offsetY,
             TILE_SIZE, TILE_SIZE
         );
     });
