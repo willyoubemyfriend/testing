@@ -7,10 +7,10 @@ export function startEvent(event) {
     currentEvent = createEventInstance(event);
 }
 
-export function updateEvent(player, dialogueSystem) {
+export function updateEvent(player, npcs, dialogueSystem) {
     if (!currentEvent) return;
 
-    currentEvent.update(player, dialogueSystem);
+    currentEvent.update(player, npcs, dialogueSystem);
 
     if (currentEvent.done) {
         currentEvent = null;
@@ -30,7 +30,7 @@ function createEventInstance(eventDef) {
         subevents: [],
         done: false,
 
-        update(player, dialogueSystem) {
+        update(player, npcs, dialogueSystem) {
             if (this.done) return;
 
             const step = this.steps[this.stepIndex];
@@ -75,7 +75,7 @@ function createSubeventInstance(sub, player, dialogueSystem) {
         case "wait":
             return createWaitSub(sub);
         case "group":
-            return createGroupSub(sub, player, dialogueSystem);
+            return createGroupSub(sub, player, npcs, dialogueSystem);
         default:
             throw new Error(`Unknown subevent type: ${sub.type}`);
     }
@@ -192,7 +192,7 @@ function createGroupSub(sub, player, dialogueSystem) {
     return {
         done: false,
         update() {
-            groupEvent.update(player, dialogueSystem);
+            groupEvent.update(player, npcs, dialogueSystem);
             if (groupEvent.done) {
                 this.done = true;
             }
