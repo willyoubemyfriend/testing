@@ -52,7 +52,7 @@ const playerStats = createPlayerStats();
 const seenEnemies = Array(28).fill(true);
 const enemyStatuses = Array(28).fill("newlife");
 
-let currentRoomIndex = 0;
+export let currentRoomIndex = 0;
 let gameState = {
     mode: 'overworld',
     canMove: true
