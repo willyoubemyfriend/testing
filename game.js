@@ -144,7 +144,7 @@ function canMoveInCurrentRoom(x, y) {
 
 function update() {
     if (isEventRunning()) {
-        updateEvent(player, dialogueSystem);
+        updateEvent(player, dialogueSystem, currentRoomIndex);
         return;
     }
     
