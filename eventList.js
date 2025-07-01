@@ -30,5 +30,26 @@ export const Events = {
                 }
             ]
         ]
+    },
+    taciturnipScene: {
+        steps: [
+            [
+                {
+                    type: "dialogue",
+                    lines: ["Oh, sorry. Am I in your way?", "Deepest apologies.", "No, literally. I'm very deeply rooted in the ground, you see.", "What were we doing again...? Oh yeah."]
+                }
+            ],
+            [
+                {
+                    type: "group",
+                    steps: [
+                        [ { type: "moveNPC", id: 1, dx: -4 } ],
+                        [ { type: "moveNPC", id: 1, dy: -2 } ],
+                        [ { type: "dialogue", lines: ["I'm outta here brother!!!!!!!"] } ],
+                        [ { type: "moveNPC", id: 1, dx: -4 } ]
+                    ]
+                }
+            ]
+        ]
     }
 };
