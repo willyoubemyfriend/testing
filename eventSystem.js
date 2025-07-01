@@ -5,8 +5,8 @@ import { currentRoomIndex } from './game.js';
 
 export let currentEvent = null;
 
-export function startEvent(event) {
-    currentEvent = createEventInstance(event);
+export function startEvent(event, roomIndex) {
+    currentEvent = createEventInstance(event, roomIndex);
 }
 
 export function updateEvent(player, dialogueSystem) {
@@ -25,26 +25,31 @@ export function isEventRunning() {
 
 // ───────────────────── Event Instance ─────────────────────
 
-function createEventInstance(eventDef) {
+function createEventInstance(eventDef, initialRoomIndex) {
     return {
         steps: eventDef.steps,
         stepIndex: 0,
         subevents: [],
         done: false,
+        currentRoomIndex: initialRoomIndex,
 
-        update(player, dialogueSystem) {
+        update(player, dialogueSystem, currentRoomIndex) {
             if (this.done) return;
+
+            if (currentRoomIndex !== undefined) {
+                this.currentRoomIndex = currentRoomIndex;
+            }
 
             const step = this.steps[this.stepIndex];
 
             if (!this.subevents.length) {
-                this.subevents = step.map(sub => createSubeventInstance(sub, player, dialogueSystem));
+                this.subevents = step.map(sub => createSubeventInstance(sub, player, dialogueSystem, this.currentRoomIndex));
             }
 
             let allDone = true;
             for (const sub of this.subevents) {
                 if (!sub.done) {
-                    sub.update(player, dialogueSystem);
+                    sub.update(player, dialogueSystem, this.currentRoomIndex);
                     if (!sub.done) allDone = false;
                 }
             }
@@ -62,7 +67,7 @@ function createEventInstance(eventDef) {
 
 // ───────────────────── Subevent Instances ─────────────────────
 
-function createSubeventInstance(sub, player, dialogueSystem) {
+function createSubeventInstance(sub, player, dialogueSystem, currentRoomIndex) {
     switch (sub.type) {
         case "dialogue":
             return createDialogueSub(sub, dialogueSystem);
@@ -71,7 +76,7 @@ function createSubeventInstance(sub, player, dialogueSystem) {
         case "movePlayerRelative":
             return createMovePlayerRelativeSub(sub, player);
         case "moveNPC":
-            return createMoveNPCSub(sub);
+            return createMoveNPCSub(sub, currentRoomIndex);
         case "wait":
             return createWaitSub(sub);
         case "group":
@@ -131,7 +136,7 @@ function createMovePlayerRelativeSub(sub, player) {
     };
 }
 
-function createMoveNPCSub(sub) {
+function createMoveNPCSub(sub, currentRoomIndex) {
     // Find the NPC in the current room
     const npcs = getNPCsInRoom(currentRoomIndex);
     const npc = npcs.find(n => n.id === sub.id);
