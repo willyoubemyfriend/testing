@@ -1,27 +1,23 @@
 export const Events = {
     complexScene: {
         steps: [
-            [ // Step 1
+            [
                 { 
                     type: "dialogue", 
-                    lines: [
-                        "Hey... are you seeing this?"
-                    ] 
+                    lines: ["Hey... are you seeing this?"] 
                 },
                 { 
                     type: "group",
                     steps: [
-                        [ { type: "wait", duration: 60 } ], // Wait 1 second
-                        [ { type: "movePlayer", x: 5, y: 5 } ] // Then move
+                        [{ type: "wait", duration: 60 }],
+                        [{ type: "movePlayer", x: 5, y: 5 }]
                     ]
                 }
             ],
-            [ // Step 2
+            [
                 { 
                     type: "dialogue", 
-                    lines: [
-                        "Well... that just happened."
-                    ] 
+                    lines: ["Well... that just happened."] 
                 }
             ]
         ]
