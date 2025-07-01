@@ -1,7 +1,6 @@
 import { startDialogue, updateDialogue, advanceDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { updatePlayerPosition } from './playerSystem.js';
 
-
 export let currentEvent = null;
 
 export function startEvent(event) {
@@ -22,9 +21,11 @@ export function isEventRunning() {
     return currentEvent !== null;
 }
 
-function createEventInstance(event) {
+// ───────────────────── Event Instance ─────────────────────
+
+function createEventInstance(eventDef) {
     return {
-        steps: event.steps,
+        steps: eventDef.steps,
         stepIndex: 0,
         subevents: [],
         done: false,
@@ -35,16 +36,13 @@ function createEventInstance(event) {
             const step = this.steps[this.stepIndex];
 
             if (!this.subevents.length) {
-                step.forEach(sub => {
-                    const instance = createSubeventInstance(sub, player, dialogueSystem);
-                    this.subevents.push(instance);
-                });
+                this.subevents = step.map(sub => createSubeventInstance(sub, player, dialogueSystem));
             }
 
             let allDone = true;
             for (const sub of this.subevents) {
                 if (!sub.done) {
-                    sub.update();
+                    sub.update(player, dialogueSystem);
                     if (!sub.done) allDone = false;
                 }
             }
@@ -60,6 +58,8 @@ function createEventInstance(event) {
     };
 }
 
+// ───────────────────── Subevent Instances ─────────────────────
+
 function createSubeventInstance(sub, player, dialogueSystem) {
     switch (sub.type) {
         case "dialogue":
@@ -70,8 +70,12 @@ function createSubeventInstance(sub, player, dialogueSystem) {
             return createWaitSub(sub);
         case "group":
             return createGroupSub(sub, player, dialogueSystem);
+        default:
+            throw new Error(`Unknown subevent type: ${sub.type}`);
     }
 }
+
+// ─── Dialogue Subevent ───
 
 function createDialogueSub(sub, dialogueSystem) {
     startDialogue(dialogueSystem, sub.lines);
@@ -86,6 +90,8 @@ function createDialogueSub(sub, dialogueSystem) {
     };
 }
 
+// ─── Move Player Subevent ───
+
 function createMovePlayerSub(sub, player) {
     player.x = sub.x;
     player.y = sub.y;
@@ -99,6 +105,8 @@ function createMovePlayerSub(sub, player) {
     };
 }
 
+// ─── Wait Subevent ───
+
 function createWaitSub(sub) {
     let timer = sub.duration;
     return {
@@ -110,13 +118,18 @@ function createWaitSub(sub) {
     };
 }
 
+// ─── Group Subevent (Nested Event) ───
+
 function createGroupSub(sub, player, dialogueSystem) {
-    const group = createEventInstance({ steps: sub.steps });
+    const groupEvent = createEventInstance({ steps: sub.steps });
+
     return {
         done: false,
         update() {
-            group.update(player, dialogueSystem);
-            if (group.done) this.done = true;
+            groupEvent.update(player, dialogueSystem);
+            if (groupEvent.done) {
+                this.done = true;
+            }
         }
     };
 }
