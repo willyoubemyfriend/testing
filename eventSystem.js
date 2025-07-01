@@ -4,15 +4,16 @@ import { updatePlayerPosition } from './playerSystem.js';
 export let currentEvent = null;
 
 export function startEvent(event) {
-    currentEvent = createEventRunner(event);
+    currentEvent = createEventInstance(event);
 }
 
 export function updateEvent(player, dialogueSystem) {
-    if (currentEvent) {
-        currentEvent.update(player, dialogueSystem);
-        if (currentEvent.done) {
-            currentEvent = null;
-        }
+    if (!currentEvent) return;
+
+    currentEvent.update();
+
+    if (currentEvent.done) {
+        currentEvent = null;
     }
 }
 
@@ -20,30 +21,30 @@ export function isEventRunning() {
     return currentEvent !== null;
 }
 
-// ─────────── Event Runner Factory ───────────
-function createEventRunner(eventDef) {
-    if (!eventDef || !eventDef.steps) {
-        throw new Error("Invalid event definition: missing 'steps'");
-    }
-
+function createEventInstance(event) {
     return {
-        steps: eventDef.steps,
+        steps: event.steps,
         stepIndex: 0,
         subevents: [],
         done: false,
 
-        update(player, dialogueSystem) {
+        update() {
             if (this.done) return;
 
-            if (this.subevents.length === 0) {
-                const step = this.steps[this.stepIndex];
-                this.subevents = step.map(sub => createSubeventInstance(sub, player, dialogueSystem));
+            const step = this.steps[this.stepIndex];
+
+            if (!this.subevents.length) {
+                // Initialize subevents in this step
+                step.forEach(sub => {
+                    const instance = createSubeventInstance(sub);
+                    this.subevents.push(instance);
+                });
             }
 
             let allDone = true;
             for (const sub of this.subevents) {
                 if (!sub.done) {
-                    sub.update(player, dialogueSystem);
+                    sub.update();
                     if (!sub.done) allDone = false;
                 }
             }
@@ -59,45 +60,23 @@ function createEventRunner(eventDef) {
     };
 }
 
-// ─────────── Subevent Creation ───────────
-function createSubeventInstance(sub, player, dialogueSystem) {
-    if (!sub || !sub.type) {
-        throw new Error("Invalid subevent: missing 'type'");
-    }
-
+function createSubeventInstance(sub) {
     switch (sub.type) {
         case "dialogue":
-            return createDialogueSub(sub, dialogueSystem);
+            return createDialogueSub(sub);
         case "movePlayer":
-            return createMovePlayerSub(sub, player);
+            return createMovePlayerSub(sub);
         case "wait":
             return createWaitSub(sub);
         case "group":
-            return createGroupSub(sub, player, dialogueSystem);
+            return createGroupSub(sub);
         default:
             throw new Error(`Unknown subevent type: ${sub.type}`);
     }
 }
 
-// ─────────── Group (Nested Sequence) ───────────
-function createGroupSub(sub, player, dialogueSystem) {
-    if (!sub.steps) {
-        throw new Error("Group subevent is missing 'steps'");
-    }
-
-    const runner = createEventRunner(sub);
-
-    return {
-        done: false,
-        update() {
-            runner.update(player, dialogueSystem);
-            if (runner.done) this.done = true;
-        }
-    };
-}
-
 // ─────────── Dialogue ───────────
-function createDialogueSub(sub, dialogueSystem) {
+function createDialogueSub(sub) {
     startDialogue(dialogueSystem, sub.lines);
     return {
         done: false,
@@ -111,7 +90,7 @@ function createDialogueSub(sub, dialogueSystem) {
 }
 
 // ─────────── Move Player ───────────
-function createMovePlayerSub(sub, player) {
+function createMovePlayerSub(sub) {
     player.x = sub.x;
     player.y = sub.y;
     player.moving = true;
@@ -124,7 +103,7 @@ function createMovePlayerSub(sub, player) {
     };
 }
 
-// ─────────── Wait Timer ───────────
+// ─────────── Wait ───────────
 function createWaitSub(sub) {
     let timer = sub.duration;
     return {
@@ -132,6 +111,19 @@ function createWaitSub(sub) {
         update() {
             timer--;
             if (timer <= 0) this.done = true;
+        }
+    };
+}
+
+// ─────────── Group ───────────
+// A mini-event with its own steps and subevents
+function createGroupSub(sub) {
+    const group = createEventInstance({ steps: sub.steps });
+    return {
+        done: false,
+        update() {
+            group.update();
+            if (group.done) this.done = true;
         }
     };
 }
