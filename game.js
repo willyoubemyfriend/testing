@@ -126,7 +126,7 @@ function handleKeyPress(key) {
         if (key === ",") changeInventoryPage(inventory, -1);
     }
     if (key === "e" && !isEventRunning()) {
-        startEvent(Events.taciScene);
+        startEvent(Events.introScene);
         return;
     }
 }
