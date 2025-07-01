@@ -1,25 +1,27 @@
 export const Events = {
-    testNested: {
+    complexScene: {
         steps: [
-            [ // Step 1 — runs in parallel
+            [ // Step 1
                 { 
                     type: "dialogue", 
-                    lines: ["I will talk while you wait and move."] 
+                    lines: [
+                        "Hey... are you seeing this?"
+                    ] 
                 },
                 { 
-                    type: "group", 
+                    type: "group",
                     steps: [
-                        [ { type: "wait", duration: 60 } ],          // Wait 1 second
-                        [ { type: "movePlayer", x: 5, y: 5 } ],      // Move
-                        [ { type: "wait", duration: 30 } ],          // Wait half a second
-                        [ { type: "movePlayer", x: 7, y: 7 } ]       // Move again
+                        [ { type: "wait", duration: 60 } ], // Wait 1 second
+                        [ { type: "movePlayer", x: 5, y: 5 } ] // Then move
                     ]
                 }
             ],
-            [ // Step 2 — after everything in step 1
+            [ // Step 2
                 { 
                     type: "dialogue", 
-                    lines: ["Done! That was cool."] 
+                    lines: [
+                        "Well... that just happened."
+                    ] 
                 }
             ]
         ]
