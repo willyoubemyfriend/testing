@@ -1,6 +1,7 @@
 import { startDialogue, updateDialogue, advanceDialogue, DIALOGUE_STATE } from './dialogueSystem.js';
 import { updatePlayerPosition } from './playerSystem.js';
 
+
 export let currentEvent = null;
 
 export function startEvent(event) {
