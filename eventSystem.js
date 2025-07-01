@@ -22,6 +22,10 @@ export function isEventRunning() {
 
 // ─────────── Event Runner Factory ───────────
 function createEventRunner(eventDef) {
+    if (!eventDef || !eventDef.steps) {
+        throw new Error("Invalid event definition: missing 'steps'");
+    }
+
     return {
         steps: eventDef.steps,
         stepIndex: 0,
@@ -57,6 +61,10 @@ function createEventRunner(eventDef) {
 
 // ─────────── Subevent Creation ───────────
 function createSubeventInstance(sub, player, dialogueSystem) {
+    if (!sub || !sub.type) {
+        throw new Error("Invalid subevent: missing 'type'");
+    }
+
     switch (sub.type) {
         case "dialogue":
             return createDialogueSub(sub, dialogueSystem);
@@ -73,7 +81,12 @@ function createSubeventInstance(sub, player, dialogueSystem) {
 
 // ─────────── Group (Nested Sequence) ───────────
 function createGroupSub(sub, player, dialogueSystem) {
-    const runner = createEventRunner({ steps: sub.steps });
+    if (!sub.steps) {
+        throw new Error("Group subevent is missing 'steps'");
+    }
+
+    const runner = createEventRunner(sub);
+
     return {
         done: false,
         update() {
