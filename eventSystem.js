@@ -151,14 +151,18 @@ function createMoveNPCSub(sub, currentRoomIndex) {
     const targetX = sub.x !== undefined ? sub.x : npc.x + (sub.dx || 0);
     const targetY = sub.y !== undefined ? sub.y : npc.y + (sub.dy || 0);
 
-    // Set target position
+    // Set target position and mark NPC as moving
     setNPCTargetPosition(npc, targetX, targetY);
+    npc.moving = true;  // This is the crucial line that was missing
     
     return {
         done: false,
         update() {
             const finished = updateNPCPosition(npc);
-            if (finished) this.done = true;
+            if (finished) {
+                npc.moving = false;  // Clean up when movement is done
+                this.done = true;
+            }
         }
     };
 }
