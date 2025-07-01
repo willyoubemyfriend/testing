@@ -2,6 +2,10 @@ export const Events = {
     introScene: {
         steps: [
             [
+                {
+                    type: "movePlayerRelative",
+                    dy: 1
+                },
                 // Dialogue starts
                 { 
                     type: "dialogue", 
