@@ -7,10 +7,10 @@ export function startEvent(event) {
     currentEvent = createEventInstance(event);
 }
 
-export function updateEvent(player, npcs, dialogueSystem) {
+export function updateEvent(player, dialogueSystem) {
     if (!currentEvent) return;
 
-    currentEvent.update(player, npcs, dialogueSystem);
+    currentEvent.update(player, dialogueSystem);
 
     if (currentEvent.done) {
         currentEvent = null;
@@ -30,7 +30,7 @@ function createEventInstance(eventDef) {
         subevents: [],
         done: false,
 
-        update(player, npcs, dialogueSystem) {
+        update(player, dialogueSystem) {
             if (this.done) return;
 
             const step = this.steps[this.stepIndex];
@@ -68,14 +68,10 @@ function createSubeventInstance(sub, player, dialogueSystem) {
             return createMovePlayerSub(sub, player);
         case "movePlayerRelative":
             return createMovePlayerRelativeSub(sub, player);
-        case "moveNPC":
-            return createMoveNPCSub(sub, npcs);
-        case "moveNPCRelative":
-            return createMoveNPCRelativeSub(sub, npcs);
         case "wait":
             return createWaitSub(sub);
         case "group":
-            return createGroupSub(sub, player, npcs, dialogueSystem);
+            return createGroupSub(sub, player, dialogueSystem);
         default:
             throw new Error(`Unknown subevent type: ${sub.type}`);
     }
@@ -131,46 +127,6 @@ function createMovePlayerRelativeSub(sub, player) {
     };
 }
 
-// ─── Move NPC to Absolute ───
-function createMoveNPCSub(sub, npcs) {
-    const npc = npcs.find(n => n.id === sub.id);
-    if (!npc) throw new Error(`NPC with id ${sub.id} not found.`);
-
-    npc.x = sub.x;
-    npc.y = sub.y;
-    npc.moving = true;
-
-    return {
-        done: false,
-        update() {
-            const finished = updateNPCPosition(npc);
-            if (finished) this.done = true;
-        }
-    };
-}
-
-// ─── Move NPC Relative ───
-function createMoveNPCRelativeSub(sub, npcs) {
-    const npc = npcs.find(n => n.id === sub.id);
-    if (!npc) throw new Error(`NPC with id ${sub.id} not found.`);
-
-    const targetX = npc.x + (sub.dx || 0);
-    const targetY = npc.y + (sub.dy || 0);
-
-    npc.x = targetX;
-    npc.y = targetY;
-    npc.moving = true;
-
-    return {
-        done: false,
-        update() {
-            const finished = updateNPCPosition(npc);
-            if (finished) this.done = true;
-        }
-    };
-}
-
-
 // ─── Wait Subevent ───
 
 function createWaitSub(sub) {
@@ -192,7 +148,7 @@ function createGroupSub(sub, player, dialogueSystem) {
     return {
         done: false,
         update() {
-            groupEvent.update(player, npcs, dialogueSystem);
+            groupEvent.update(player, dialogueSystem);
             if (groupEvent.done) {
                 this.done = true;
             }
