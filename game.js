@@ -25,8 +25,7 @@ import {
     drawNPCs,
     isNPCCollision,
     drawNPCsInTransition,
-    getNPCsInRoom,
-    npcs
+    getNPCsInRoom
 } from './npcs.js';
 
 import { 
