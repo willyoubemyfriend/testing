@@ -55,7 +55,7 @@ export function getNPCsInRoom(roomIndex) {
     return NPCs.flatMap(npc => {
         return npc.rooms
             .filter(room => room.roomIndex === roomIndex)
-            .map(room => ({ ...npc, ...room, px: room.x * TILE_SIZE, py: room.y * TILE_SIZE, moving: false, speed: 1 }));
+            .map(room => ({ ...npc, ...room }));
     });
 }
 
@@ -73,7 +73,7 @@ export function drawNPCs(ctx, roomIndex, npcSpritesheet, player, keys) {
             npcSpritesheet,
             npc.spriteIndex * TILE_SIZE, 0,
             TILE_SIZE, TILE_SIZE,
-            npc.px, npc.py,
+            npc.x * TILE_SIZE, npc.y * TILE_SIZE,
             TILE_SIZE, TILE_SIZE
         );
 
@@ -111,8 +111,8 @@ export function drawNPCsInTransition(ctx, roomIndex, offsetX, offsetY, npcSprite
             npcSpritesheet,
             npc.spriteIndex * TILE_SIZE, 0,
             TILE_SIZE, TILE_SIZE,
-            npc.px + offsetX,
-            npc.py + offsetY,
+            npc.x * TILE_SIZE + offsetX,
+            npc.y * TILE_SIZE + offsetY,
             TILE_SIZE, TILE_SIZE
         );
     });
@@ -125,24 +125,4 @@ export function isNPCCollision(playerX, playerY, roomIndex) {
         npc.x === playerX && 
         npc.y === playerY
     );
-}
-
-export function updateNPCPositions(npcs) {
-    npcs.forEach(npc => {
-        if (npc.moving) {
-            const tx = npc.x * TILE_SIZE;
-            const ty = npc.y * TILE_SIZE;
-
-            if (npc.px < tx) npc.px += npc.speed;
-            if (npc.px > tx) npc.px -= npc.speed;
-            if (npc.py < ty) npc.py += npc.speed;
-            if (npc.py > ty) npc.py -= npc.speed;
-
-            if (Math.abs(npc.px - tx) < npc.speed && Math.abs(npc.py - ty) < npc.speed) {
-                npc.px = tx;
-                npc.py = ty;
-                npc.moving = false;
-            }
-        }
-    });
 }
