@@ -7,10 +7,10 @@ export function startEvent(event) {
     currentEvent = createEventInstance(event);
 }
 
-export function updateEvent(player, dialogueSystem) {
+export function updateEvent(player, dialogueSystem, npcs) {
     if (!currentEvent) return;
 
-    currentEvent.update(player, dialogueSystem);
+    currentEvent.update(player, dialogueSystem, npcs);
 
     if (currentEvent.done) {
         currentEvent = null;
@@ -30,19 +30,19 @@ function createEventInstance(eventDef) {
         subevents: [],
         done: false,
 
-        update(player, dialogueSystem) {
+        update(player, dialogueSystem, npcs) {
             if (this.done) return;
 
             const step = this.steps[this.stepIndex];
 
             if (!this.subevents.length) {
-                this.subevents = step.map(sub => createSubeventInstance(sub, player, dialogueSystem));
+                this.subevents = step.map(sub => createSubeventInstance(sub, player, dialogueSystem, npcs));
             }
 
             let allDone = true;
             for (const sub of this.subevents) {
                 if (!sub.done) {
-                    sub.update(player, dialogueSystem);
+                    sub.update(player, dialogueSystem, npcs);
                     if (!sub.done) allDone = false;
                 }
             }
@@ -68,6 +68,10 @@ function createSubeventInstance(sub, player, dialogueSystem) {
             return createMovePlayerSub(sub, player);
         case "movePlayerRelative":
             return createMovePlayerRelativeSub(sub, player);
+        case "moveNPC":
+            return createMoveNPCSub(sub, npcs);
+        case "moveNPCRelative":
+            return createMoveNPCRelativeSub(sub, npcs);
         case "wait":
             return createWaitSub(sub);
         case "group":
@@ -127,6 +131,46 @@ function createMovePlayerRelativeSub(sub, player) {
     };
 }
 
+function createMoveNPCSub(sub, npcs) {
+    const npc = npcs.find(n => n.id === sub.id);
+    if (!npc) throw new Error(`NPC with id ${sub.id} not found.`);
+
+    npc.x = sub.x;
+    npc.y = sub.y;
+    npc.moving = true;
+
+    return {
+        done: false,
+        update() {
+            if (!npc.moving) {
+                this.done = true;
+            }
+        }
+    };
+}
+
+function createMoveNPCRelativeSub(sub, npcs) {
+    const npc = npcs.find(n => n.id === sub.id);
+    if (!npc) throw new Error(`NPC with id ${sub.id} not found.`);
+
+    const targetX = npc.x + (sub.dx || 0);
+    const targetY = npc.y + (sub.dy || 0);
+
+    npc.x = targetX;
+    npc.y = targetY;
+    npc.moving = true;
+
+    return {
+        done: false,
+        update() {
+            if (!npc.moving) {
+                this.done = true;
+            }
+        }
+    };
+}
+
+
 // ─── Wait Subevent ───
 
 function createWaitSub(sub) {
@@ -142,13 +186,13 @@ function createWaitSub(sub) {
 
 // ─── Group Subevent (Nested Event) ───
 
-function createGroupSub(sub, player, dialogueSystem) {
+function createGroupSub(sub, player, dialogueSystem, npcs) {
     const groupEvent = createEventInstance({ steps: sub.steps });
 
     return {
         done: false,
         update() {
-            groupEvent.update(player, dialogueSystem);
+            groupEvent.update(player, dialogueSystem, npcs);
             if (groupEvent.done) {
                 this.done = true;
             }
