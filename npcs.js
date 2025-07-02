@@ -55,7 +55,7 @@ export function getNPCsInRoom(roomIndex) {
     return NPCs.flatMap(npc => {
         return npc.rooms
             .filter(room => room.roomIndex === roomIndex)
-            .map(room => ({ ...npc, ...room, px: room.x * TILE_SIZE, room.y * TILE_SIZE, moving: false, speed: 1 }));
+            .map(room => ({ ...npc, ...room, px: room.x * TILE_SIZE, py: room.y * TILE_SIZE, moving: false, speed: 1 }));
     });
 }
 
