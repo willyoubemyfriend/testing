@@ -57,6 +57,8 @@ let gameState = {
     mode: 'overworld',
     canMove: true
 };
+let npcs = getNPCsInRoom(currentRoomIndex);
+
 
 let enemyAnimTimer = 0;
 let enemyAnimFrame = 0;
