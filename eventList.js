@@ -30,5 +30,17 @@ export const Events = {
                 }
             ]
         ]
+    },
+    taciScene: {
+        steps: [
+            [
+                { 
+                    type: "moveNPCRelative",
+                    id: 1,
+                    dx: 0,
+                    dy: 2
+                }
+            ]
+        ]
     }
 };
