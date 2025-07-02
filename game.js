@@ -57,8 +57,6 @@ let gameState = {
     mode: 'overworld',
     canMove: true
 };
-let npcs = getNPCsInRoom(currentRoomIndex);
-
 
 let enemyAnimTimer = 0;
 let enemyAnimFrame = 0;
@@ -128,7 +126,7 @@ function handleKeyPress(key) {
         if (key === ",") changeInventoryPage(inventory, -1);
     }
     if (key === "e" && !isEventRunning()) {
-        startEvent(Events.taciScene);
+        startEvent(Events.introScene);
         return;
     }
 }
@@ -146,7 +144,7 @@ function canMoveInCurrentRoom(x, y) {
 
 function update() {
     if (isEventRunning()) {
-        updateEvent(player, dialogueSystem, npcs);
+        updateEvent(player, dialogueSystem);
         return;
     }
     
